@@ -144,24 +144,24 @@
     // College data with coordinates and real acceptance rates from collegefit.counselorjay.com
     const colleges = [
       // Ivy League & Top Tier
-      { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167, stats: { acceptance: "4%" } },
-      { name: "Stanford University", city: "Stanford, CA", lat: 37.4275, lng: -122.1697, stats: { acceptance: "3.9%" } },
-      { name: "MIT", city: "Cambridge, MA", lat: 42.3601, lng: -71.0942, stats: { acceptance: "<10%" } },
-      { name: "Yale University", city: "New Haven, CT", lat: 41.3163, lng: -72.9254, stats: { acceptance: "3.8%" } },
-      { name: "Princeton University", city: "Princeton, NJ", lat: 40.3440, lng: -74.6514, stats: { acceptance: "3.7%" } },
-      { name: "Columbia University", city: "New York, NY", lat: 40.8075, lng: -73.9626, stats: { acceptance: "3.7%" } },
-      { name: "University of Pennsylvania", city: "Philadelphia, PA", lat: 39.9493, lng: -75.1553, stats: { acceptance: "4.6%" } },
-      { name: "Brown University", city: "Providence, RI", lat: 41.8268, lng: -71.4025, stats: { acceptance: "5.65%" } },
-      { name: "Duke University", city: "Durham, NC", lat: 36.0010, lng: -78.9382, stats: { acceptance: "6%" } },
-      { name: "Northwestern University", city: "Evanston, IL", lat: 42.0565, lng: -87.6753, stats: { acceptance: "~6%" } },
-      { name: "University of Chicago", city: "Chicago, IL", lat: 41.7886, lng: -87.5987, stats: { acceptance: "~5%" } },
-      { name: "Caltech", city: "Pasadena, CA", lat: 34.1377, lng: -118.1253, stats: { acceptance: "~4%" } },
-      { name: "Johns Hopkins University", city: "Baltimore, MD", lat: 39.3299, lng: -76.6205, stats: { acceptance: "~6%" } },
-      { name: "Cornell University", city: "Ithaca, NY", lat: 42.4534, lng: -76.4735, stats: { acceptance: "8.4%" } },
-      { name: "Rice University", city: "Houston, TX", lat: 29.7174, lng: -95.4018, stats: { acceptance: "~6%" } },
-      { name: "Vanderbilt University", city: "Nashville, TN", lat: 36.1447, lng: -86.8027, stats: { acceptance: "~6%" } },
-      { name: "University of Notre Dame", city: "Notre Dame, IN", lat: 41.7055, lng: -86.2353, stats: { acceptance: "9%" } },
-      { name: "Georgetown University", city: "Washington, DC", lat: 38.9076, lng: -77.0723, stats: { acceptance: "~13%" } },
+      { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167, stats: { acceptance: "4%", sat: "1480-1590", act: "33-36", enrollment: "7,103" } },
+      { name: "Stanford University", city: "Stanford, CA", lat: 37.4275, lng: -122.1697, stats: { acceptance: "3.9%", sat: "1520-1580", act: "34-36", enrollment: "7,645" } },
+      { name: "MIT", city: "Cambridge, MA", lat: 42.3601, lng: -71.0942, stats: { acceptance: "<10%", sat: "1520-1580", act: "34-36", enrollment: "4,657" } },
+      { name: "Yale University", city: "New Haven, CT", lat: 41.3163, lng: -72.9254, stats: { acceptance: "3.8%", sat: "1480-1580", act: "33-36", enrollment: "6,590" } },
+      { name: "Princeton University", city: "Princeton, NJ", lat: 40.3440, lng: -74.6514, stats: { acceptance: "3.7%", sat: "1470-1570", act: "33-35", enrollment: "5,427" } },
+      { name: "Columbia University", city: "New York, NY", lat: 40.8075, lng: -73.9626, stats: { acceptance: "3.7%", sat: "1450-1560", act: "33-35", enrollment: "8,832" } },
+      { name: "University of Pennsylvania", city: "Philadelphia, PA", lat: 39.9493, lng: -75.1553, stats: { acceptance: "4.6%", sat: "1470-1560", act: "33-35", enrollment: "10,496" } },
+      { name: "Brown University", city: "Providence, RI", lat: 41.8268, lng: -71.4025, stats: { acceptance: "5.65%", sat: "1480-1570", act: "33-35", enrollment: "6,648" } },
+      { name: "Duke University", city: "Durham, NC", lat: 36.0010, lng: -78.9382, stats: { acceptance: "6%", sat: "1480-1570", act: "33-35", enrollment: "6,609" } },
+      { name: "Northwestern University", city: "Evanston, IL", lat: 42.0565, lng: -87.6753, stats: { acceptance: "~6%", sat: "1470-1560", act: "33-35", enrollment: "8,231" } },
+      { name: "University of Chicago", city: "Chicago, IL", lat: 41.7886, lng: -87.5987, stats: { acceptance: "~5%", sat: "1510-1580", act: "33-35", enrollment: "6,906" } },
+      { name: "Caltech", city: "Pasadena, CA", lat: 34.1377, lng: -118.1253, stats: { acceptance: "~4%", sat: "1530-1590", act: "35-36", enrollment: "892" } },
+      { name: "Johns Hopkins University", city: "Baltimore, MD", lat: 39.3299, lng: -76.6205, stats: { acceptance: "~6%", sat: "1470-1560", act: "33-35", enrollment: "6,256" } },
+      { name: "Cornell University", city: "Ithaca, NY", lat: 42.4534, lng: -76.4735, stats: { acceptance: "8.4%", sat: "1450-1560", act: "32-35", enrollment: "15,503" } },
+      { name: "Rice University", city: "Houston, TX", lat: 29.7174, lng: -95.4018, stats: { acceptance: "~6%", sat: "1490-1570", act: "34-36", enrollment: "4,050" } },
+      { name: "Vanderbilt University", city: "Nashville, TN", lat: 36.1447, lng: -86.8027, stats: { acceptance: "~6%", sat: "1470-1560", act: "33-35", enrollment: "6,886" } },
+      { name: "University of Notre Dame", city: "Notre Dame, IN", lat: 41.7055, lng: -86.2353, stats: { acceptance: "9%", sat: "1450-1550", act: "33-35", enrollment: "8,874" } },
+      { name: "Georgetown University", city: "Washington, DC", lat: 38.9076, lng: -77.0723, stats: { acceptance: "~13%", sat: "1410-1550", act: "31-34", enrollment: "7,459" } },
       // UC Schools
       { name: "UC Berkeley", city: "Berkeley, CA", lat: 37.8716, lng: -122.2727, stats: { acceptance: "~11%" } },
       { name: "UCLA", city: "Los Angeles, CA", lat: 34.0689, lng: -118.4452, stats: { acceptance: "~3%" } },
@@ -268,15 +268,22 @@
       
       // Show popup
       setTimeout(() => {
+        const stats = college.stats;
+        let statsHtml = `<span><b>Acceptance:</b> ${stats.acceptance || 'N/A'}</span>`;
+        if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
+        if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
+        if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
+        
+        const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         const popupContent = `
           <div class="popup-name">${college.name}</div>
           <div class="popup-location">${college.city}</div>
           <div class="popup-stats">
-            <span><b>Acceptance Rate:</b> ${college.stats.acceptance || 'N/A'}</span>
-            <span><a href="https://collegefit.counselorjay.com/${college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')}.html" target="_blank">View Full Profile →</a></span>
+            ${statsHtml}
+            <span style="margin-top:8px;display:block;"><a href="https://collegefit.counselorjay.com/${slug}.html" target="_blank" style="color:#4facfe;">View Full Profile →</a></span>
           </div>
         `;
-        const popup = L.popup({ maxWidth: 300 })
+        const popup = L.popup({ maxWidth: 320 })
           .setLatLng([college.lat, college.lng])
           .setContent(popupContent)
           .openOn(map);
