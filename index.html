@@ -106,6 +106,19 @@
       color: #666;
     }
     
+    .popup-stats {
+      font-size: 0.8rem;
+      color: #1a1a2e;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #ccc;
+    }
+    
+    .popup-stats span {
+      display: block;
+      margin-bottom: 4px;
+    }
+    
     #stats {
       padding: 15px 20px;
       background: #16213e;
@@ -128,62 +141,69 @@
   <div id="map"></div>
 
   <script>
-    // College data with coordinates
+    // College data with coordinates and stats
     const colleges = [
-      { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167 },
-      { name: "Stanford University", city: "Stanford, CA", lat: 37.4275, lng: -122.1697 },
-      { name: "MIT", city: "Cambridge, MA", lat: 42.3601, lng: -71.0942 },
-      { name: "Yale University", city: "New Haven, CT", lat: 41.3163, lng: -72.9254 },
-      { name: "Princeton University", city: "Princeton, NJ", lat: 40.3440, lng: -74.6514 },
-      { name: "Columbia University", city: "New York, NY", lat: 40.8075, lng: -73.9626 },
-      { name: "University of Pennsylvania", city: "Philadelphia, PA", lat: 39.9493, lng: -75.1553 },
-      { name: "Brown University", city: "Providence, RI", lat: 41.8268, lng: -71.4025 },
-      { name: "Duke University", city: "Durham, NC", lat: 36.0010, lng: -78.9382 },
-      { name: "Northwestern University", city: "Evanston, IL", lat: 42.0565, lng: -87.6753 },
-      { name: "University of Chicago", city: "Chicago, IL", lat: 41.7886, lng: -87.5987 },
-      { name: "Caltech", city: "Pasadena, CA", lat: 34.1377, lng: -118.1253 },
-      { name: "Johns Hopkins University", city: "Baltimore, MD", lat: 39.3299, lng: -76.6205 },
-      { name: "Cornell University", city: "Ithaca, NY", lat: 42.4534, lng: -76.4735 },
-      { name: "Rice University", city: "Houston, TX", lat: 29.7174, lng: -95.4018 },
-      { name: "Vanderbilt University", city: "Nashville, TN", lat: 36.1447, lng: -86.8027 },
-      { name: "University of Notre Dame", city: "Notre Dame, IN", lat: 41.7055, lng: -86.2353 },
-      { name: "Georgetown University", city: "Washington, DC", lat: 38.9076, lng: -77.0723 },
-      { name: "University of California, Berkeley", city: "Berkeley, CA", lat: 37.8716, lng: -122.2727 },
-      { name: "UCLA", city: "Los Angeles, CA", lat: 34.0689, lng: -118.4452 },
-      { name: "University of Michigan", city: "Ann Arbor, MI", lat: 42.2780, lng: -83.7382 },
-      { name: "University of Virginia", city: "Charlottesville, VA", lat: 38.0336, lng: -78.5080 },
-      { name: "Carnegie Mellon University", city: "Pittsburgh, PA", lat: 40.4443, lng: -79.9608 },
-      { name: "Emory University", city: "Atlanta, GA", lat: 33.7930, lng: -84.3134 },
-      { name: "University of Southern California", city: "Los Angeles, CA", lat: 34.0224, lng: -118.2851 },
-      { name: "NYU", city: "New York, NY", lat: 40.7295, lng: -73.9965 },
-      { name: "University of North Carolina", city: "Chapel Hill, NC", lat: 35.9049, lng: -79.0469 },
-      { name: "University of Georgia", city: "Athens, GA", lat: 33.9480, lng: -83.3773 },
-      { name: "University of Texas at Austin", city: "Austin, TX", lat: 30.2849, lng: -97.7341 },
-      { name: "University of Florida", city: "Gainesville, FL", lat: 29.6436, lng: -82.3549 },
-      { name: "University of Washington", city: "Seattle, WA", lat: 47.6553, lng: -122.3035 },
-      { name: "Ohio State University", city: "Columbus, OH", lat: 40.0067, lng: -83.0305 },
-      { name: "University of Wisconsin", city: "Madison, WI", lat: 43.0766, lng: -89.4125 },
-      { name: "University of Arizona", city: "Tucson, AZ", lat: 32.2319, lng: -110.9501 },
-      { name: "Boston University", city: "Boston, MA", lat: 42.3505, lng: -71.1054 },
-      { name: "Tulane University", city: "New Orleans, LA", lat: 29.9399, lng: -90.1209 },
-      { name: "University of Miami", city: "Miami, FL", lat: 25.7181, lng: -80.2793 },
-      { name: "Pepperdine University", city: "Malibu, CA", lat: 34.0392, lng: -118.7065 },
-      { name: "Villanova University", city: "Villanova, PA", lat: 40.0357, lng: -75.3385 },
-      { name: "Boston College", city: "Chestnut Hill, MA", lat: 42.3355, lng: -71.1685 },
-      { name: "Tufts University", city: "Medford, MA", lat: 42.4045, lng: -71.1198 },
-      { name: "Northeastern University", city: "Boston, MA", lat: 42.3398, lng: -71.0892 },
-      { name: "Wake Forest University", city: "Winston-Salem, NC", lat: 36.1337, lng: -80.2754 },
-      { name: "George Washington University", city: "Washington, DC", lat: 38.8997, lng: -77.0486 },
-      { name: "University of Rochester", city: "Rochester, NY", lat: 43.1285, lng: -77.6268 },
-      { name: "Case Western Reserve", city: "Cleveland, OH", lat: 41.5025, lng: -81.6739 },
-      { name: "Lehigh University", city: "Bethlehem, PA", lat: 40.6075, lng: -75.3776 },
-      { name: "University of Colorado Boulder", city: "Boulder, CO", lat: 40.0076, lng: -105.2659 },
-      { name: "University of Utah", city: "Salt Lake City, UT", lat: 40.7649, lng: -111.8421 },
-      { name: "Brigham Young University", city: "Provo, UT", lat: 40.2523, lng: -111.6493 }
+      // Continental US Colleges
+      { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167, stats: { acceptance: "3.2%", tuition: "$51,902" } },
+      { name: "Stanford University", city: "Stanford, CA", lat: 37.4275, lng: -122.1697, stats: { acceptance: "4.3%", tuition: "$60,585" } },
+      { name: "MIT", city: "Cambridge, MA", lat: 42.3601, lng: -71.0942, stats: { acceptance: "4.7%", tuition: "$59,754" } },
+      { name: "Yale University", city: "New Haven, CT", lat: 41.3163, lng: -72.9254, stats: { acceptance: "4.6%", tuition: "$62,300" } },
+      { name: "Princeton University", city: "Princeton, NJ", lat: 40.3440, lng: -74.6514, stats: { acceptance: "3.9%", tuition: "$57,410" } },
+      { name: "Columbia University", city: "New York, NY", lat: 40.8075, lng: -73.9626, stats: { acceptance: "3.7%", tuition: "$63,530" } },
+      { name: "University of Pennsylvania", city: "Philadelphia, PA", lat: 39.9493, lng: -75.1553, stats: { acceptance: "5.8%", tuition: "$64,140" } },
+      { name: "Brown University", city: "Providence, RI", lat: 41.8268, lng: -71.4025, stats: { acceptance: "5.0%", tuition: "$65,140" } },
+      { name: "Duke University", city: "Durham, NC", lat: 36.0010, lng: -78.9382, stats: { acceptance: "5.7%", tuition: "$64,110" } },
+      { name: "Northwestern University", city: "Evanston, IL", lat: 42.0565, lng: -87.6753, stats: { acceptance: "7.4%", tuition: "$62,577" } },
+      { name: "University of Chicago", city: "Chicago, IL", lat: 41.7886, lng: -87.5987, stats: { acceptance: "5.0%", tuition: "$61,773" } },
+      { name: "Caltech", city: "Pasadena, CA", lat: 34.1377, lng: -118.1253, stats: { acceptance: "2.7%", tuition: "$60,703" } },
+      { name: "Johns Hopkins University", city: "Baltimore, MD", lat: 39.3299, lng: -76.6205, stats: { acceptance: "7.5%", tuition: "$62,810" } },
+      { name: "Cornell University", city: "Ithaca, NY", lat: 42.4534, lng: -76.4735, stats: { acceptance: "7.3%", tuition: "$59,860" } },
+      { name: "Rice University", city: "Houston, TX", lat: 29.7174, lng: -95.4018, stats: { acceptance: "8.7%", tuition: "$57,210" } },
+      { name: "Vanderbilt University", city: "Nashville, TN", lat: 36.1447, lng: -86.8027, stats: { acceptance: "6.7%", tuition: "$59,730" } },
+      { name: "University of Notre Dame", city: "Notre Dame, IN", lat: 41.7055, lng: -86.2353, stats: { acceptance: "11.1%", tuition: "$59,430" } },
+      { name: "Georgetown University", city: "Washington, DC", lat: 38.9076, lng: -77.0723, stats: { acceptance: "12.1%", tuition: "$61,000" } },
+      { name: "UC Berkeley", city: "Berkeley, CA", lat: 37.8716, lng: -122.2727, stats: { acceptance: "10.4%", tuition: "$44,000" } },
+      { name: "UCLA", city: "Los Angeles, CA", lat: 34.0689, lng: -118.4452, stats: { acceptance: "8.2%", tuition: "$43,000" } },
+      { name: "University of Michigan", city: "Ann Arbor, MI", lat: 42.2780, lng: -83.7382, stats: { acceptance: "18.3%", tuition: "$57,000" } },
+      { name: "University of Virginia", city: "Charlottesville, VA", lat: 38.0336, lng: -78.5080, stats: { acceptance: "19.1%", tuition: "$55,000" } },
+      { name: "Carnegie Mellon University", city: "Pittsburgh, PA", lat: 40.4443, lng: -79.9608, stats: { acceptance: "10.9%", tuition: "$63,000" } },
+      { name: "Emory University", city: "Atlanta, GA", lat: 33.7930, lng: -84.3134, stats: { acceptance: "11.9%", tuition: "$59,000" } },
+      { name: "USC", city: "Los Angeles, CA", lat: 34.0224, lng: -118.2851, stats: { acceptance: "11.4%", tuition: "$63,000" } },
+      { name: "NYU", city: "New York, NY", lat: 40.7295, lng: -73.9965, stats: { acceptance: "12.5%", tuition: "$59,000" } },
+      { name: "University of North Carolina", city: "Chapel Hill, NC", lat: 35.9049, lng: -79.0469, stats: { acceptance: "17.9%", tuition: "$52,000" } },
+      { name: "University of Georgia", city: "Athens, GA", lat: 33.9480, lng: -83.3773, stats: { acceptance: "42.7%", tuition: "$46,000" } },
+      { name: "University of Texas at Austin", city: "Austin, TX", lat: 30.2849, lng: -97.7341, stats: { acceptance: "29.7%", tuition: "$54,000" } },
+      { name: "University of Florida", city: "Gainesville, FL", lat: 29.6436, lng: -82.3549, stats: { acceptance: "28.4%", tuition: "$47,000" } },
+      { name: "University of Washington", city: "Seattle, WA", lat: 47.6553, lng: -122.3035, stats: { acceptance: "42.4%", tuition: "$52,000" } },
+      { name: "Ohio State University", city: "Columbus, OH", lat: 40.0067, lng: -83.0305, stats: { acceptance: "48.5%", tuition: "$53,000" } },
+      { name: "University of Wisconsin", city: "Madison, WI", lat: 43.0766, lng: -89.4125, stats: { acceptance: "41.1%", tuition: "$50,000" } },
+      { name: "University of Arizona", city: "Tucson, AZ", lat: 32.2319, lng: -110.9501, stats: { acceptance: "71.2%", tuition: "$48,000" } },
+      { name: "Boston University", city: "Boston, MA", lat: 42.3505, lng: -71.1054, stats: { acceptance: "18.7%", tuition: "$61,000" } },
+      { name: "Tulane University", city: "New Orleans, LA", lat: 29.9399, lng: -90.1209, stats: { acceptance: "11.0%", tuition: "$59,000" } },
+      { name: "University of Miami", city: "Miami, FL", lat: 25.7181, lng: -80.2793, stats: { acceptance: "19.9%", tuition: "$58,000" } },
+      { name: "Pepperdine University", city: "Malibu, CA", lat: 34.0392, lng: -118.7065, stats: { acceptance: "12.1%", tuition: "$62,000" } },
+      { name: "Villanova University", city: "Villanova, PA", lat: 40.0357, lng: -75.3385, stats: { acceptance: "22.9%", tuition: "$58,000" } },
+      { name: "Boston College", city: "Chestnut Hill, MA", lat: 42.3355, lng: -71.1685, stats: { acceptance: "14.1%", tuition: "$63,000" } },
+      { name: "Tufts University", city: "Medford, MA", lat: 42.4045, lng: -71.1198, stats: { acceptance: "9.3%", tuition: "$59,000" } },
+      { name: "Northeastern University", city: "Boston, MA", lat: 42.3398, lng: -71.0892, stats: { acceptance: "5.3%", tuition: "$59,700" } },
+      { name: "Wake Forest University", city: "Winston-Salem, NC", lat: 36.1337, lng: -80.2754, stats: { acceptance: "21.5%", tuition: "$58,000" } },
+      { name: "George Washington University", city: "Washington, DC", lat: 38.8997, lng: -77.0486, stats: { acceptance: "13.0%", tuition: "$59,000" } },
+      { name: "University of Rochester", city: "Rochester, NY", lat: 43.1285, lng: -77.6268, stats: { acceptance: "24.1%", tuition: "$59,000" } },
+      { name: "Case Western Reserve", city: "Cleveland, OH", lat: 41.5025, lng: -81.6739, stats: { acceptance: "27.2%", tuition: "$59,000" } },
+      { name: "Lehigh University", city: "Bethlehem, PA", lat: 40.6075, lng: -75.3776, stats: { acceptance: "24.6%", tuition: "$59,000" } },
+      { name: "University of Colorado Boulder", city: "Boulder, CO", lat: 40.0076, lng: -105.2659, stats: { acceptance: "77.8%", tuition: "$50,000" } },
+      { name: "University of Utah", city: "Salt Lake City, UT", lat: 40.7649, lng: -111.8421, stats: { acceptance: "80.1%", tuition: "$47,000" } },
+      { name: "Brigham Young University", city: "Provo, UT", lat: 40.2523, lng: -111.6493, stats: { acceptance: "42.4%", tuition: "$35,000" } },
+      // Hawaii Colleges
+      { name: "University of Hawaii at Manoa", city: "Honolulu, HI", lat: 21.3069, lng: -157.8212, stats: { acceptance: "64.0%", tuition: "$35,000" } },
+      { name: "Hawaii Pacific University", city: "Honolulu, HI", lat: 21.3093, lng: -157.8623, stats: { acceptance: "57.0%", tuition: "$36,000" } },
+      // Alaska Colleges
+      { name: "University of Alaska Anchorage", city: "Anchorage, AK", lat: 61.1922, lng: -149.8924, stats: { acceptance: "68.0%", tuition: "$30,000" } },
+      { name: "University of Alaska Fairbanks", city: "Fairbanks, AK", lat: 64.8438, lng: -147.7339, stats: { acceptance: "56.0%", tuition: "$31,000" } }
     ];
 
-    // Initialize map
-    const map = L.map('map').setView([39.8283, -98.5795], 4);
+    // Initialize map to show full USA view (including AK and HI)
+    const map = L.map('map').setView([39.8283, -113.0], 3); // Adjusted center and zoom for full US view
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -194,6 +214,8 @@
     const markers = {};
     const listEl = document.getElementById('college-list');
     const searchEl = document.getElementById('search');
+    const statsEl = document.getElementById('stats');
+    let activeMarker = null;
 
     // Render college list
     function renderList(filter = '') {
@@ -210,31 +232,44 @@
           <div class="college-name">${college.name}</div>
           <div class="college-location">${college.city}</div>
         `;
-        div.addEventListener('click', () => flyToCollege(college));
+        div.addEventListener('click', () => focusOnCollege(college));
         listEl.appendChild(div);
       });
+      statsEl.innerText = `Found ${filtered.length} colleges. Click one to locate.`;
     }
 
-    // Fly to college and show popup
-    function flyToCollege(college) {
-      // Update active state
+    // Focus on college and show popup
+    function focusOnCollege(college) {
+      // Update active state in list
       document.querySelectorAll('.college-item').forEach(el => el.classList.remove('active'));
-      event.target.closest('.college-item').classList.add('active');
+      // Find the clicked item and mark it active (this requires careful DOM traversal or passing the element)
+      // For simplicity, we'll re-query for the element that matches the college name
+      document.querySelectorAll('.college-item').forEach(itemEl => {
+        if (itemEl.querySelector('.college-name').innerText === college.name) {
+          itemEl.classList.add('active');
+        }
+      });
       
       // Fly to location
-      map.flyTo([college.lat, college.lng], 10, {
+      map.flyTo([college.lat, college.lng], college.name.includes("University of Hawaii") || college.name.includes("Hawaii Pacific") || college.name.includes("University of Alaska") ? 6 : 10, { // Zoom level for Hawaii/Alaska
         duration: 1.5
       });
       
       // Show popup
       setTimeout(() => {
-        const popup = L.popup()
+        const popupContent = `
+          <div class="popup-name">${college.name}</div>
+          <div class="popup-location">${college.city}</div>
+          <div class="popup-stats">
+            <span><b>Acceptance Rate:</b> ${college.stats.acceptance || 'N/A'}</span>
+            <span><b>Tuition:</b> ${college.stats.tuition || 'N/A'}</span>
+          </div>
+        `;
+        const popup = L.popup({ maxWidth: 300 }) // Set popup max width
           .setLatLng([college.lat, college.lng])
-          .setContent(`
-            <div class="popup-name">${college.name}</div>
-            <div class="popup-location">${college.city}</div>
-          `)
+          .setContent(popupContent)
           .openOn(map);
+        activeMarker = popup; // Keep track of the active popup
       }, 1600);
     }
 
