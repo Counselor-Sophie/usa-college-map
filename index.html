@@ -4,12 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>USA College Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    
+    body {
+      display: flex;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* ───────── Sidebar ───────── */
     #sidebar {
       width: 320px;
       background: #1a1a2e;
@@ -17,20 +22,18 @@
       display: flex;
       flex-direction: column;
       border-right: 1px solid #333;
+      flex-shrink: 0;
     }
-    
     #sidebar-header {
       padding: 20px;
       background: #16213e;
       border-bottom: 1px solid #333;
     }
-    
     #sidebar-header h1 {
       font-size: 1.2rem;
       font-weight: 600;
       color: #4facfe;
     }
-    
     #search {
       width: 100%;
       padding: 10px 15px;
@@ -43,17 +46,13 @@
       outline: none;
       transition: border-color 0.2s;
     }
-    
-    #search:focus {
-      border-color: #4facfe;
-    }
-    
+    #search:focus { border-color: #4facfe; }
+
     #college-list {
       flex: 1;
       overflow-y: auto;
       padding: 10px;
     }
-    
     .college-item {
       padding: 12px 15px;
       margin-bottom: 8px;
@@ -63,62 +62,18 @@
       transition: all 0.2s;
       border: 1px solid transparent;
     }
-    
     .college-item:hover {
       background: #1f3460;
       border-color: #4facfe;
     }
-    
     .college-item.active {
       background: #1f3460;
       border-color: #4facfe;
       box-shadow: 0 0 10px rgba(79, 172, 254, 0.2);
     }
-    
-    .college-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 4px;
-    }
-    
-    .college-location {
-      font-size: 0.8rem;
-      color: #888;
-    }
-    
-    #map {
-      flex: 1;
-    }
-    
-    .leaflet-popup-content-wrapper {
-      border-radius: 8px;
-    }
-    
-    .popup-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #1a1a2e;
-      margin-bottom: 4px;
-    }
-    
-    .popup-location {
-      font-size: 0.85rem;
-      color: #666;
-    }
-    
-    .popup-stats {
-      font-size: 0.8rem;
-      color: #1a1a2e;
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px dashed #ccc;
-    }
-    
-    .popup-stats span {
-      display: block;
-      margin-bottom: 4px;
-    }
-    
+    .college-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+    .college-location { font-size: 0.8rem; color: #888; }
+
     #stats {
       padding: 15px 20px;
       background: #16213e;
@@ -127,6 +82,251 @@
       color: #888;
       text-align: center;
     }
+
+    /* ───────── Map ───────── */
+    #map {
+      flex: 1;
+      position: relative;
+    }
+
+    /* College pin marker */
+    .college-marker {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #4facfe;
+      border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+      cursor: pointer;
+      transition: transform 0.12s ease-out;
+    }
+    .college-marker:hover {
+      transform: scale(1.4);
+      background: #1d4ed8;
+    }
+    .college-marker.active {
+      transform: scale(1.5);
+      background: #1d4ed8;
+    }
+
+    /* Popup styles (MapLibre class names) */
+    .maplibregl-popup-content {
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-width: 320px;
+    }
+    .popup-name {
+      font-weight: 700;
+      font-size: 1rem;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+    .popup-location {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .popup-category {
+      display: inline-block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: white;
+      margin: 4px 0 10px;
+    }
+    .popup-stats {
+      font-size: 0.8rem;
+      color: #1a1a2e;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #ccc;
+    }
+    .popup-stats span { display: block; margin-bottom: 4px; }
+    .popup-photo {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      border-radius: 6px;
+      margin: 8px 0;
+    }
+    .popup-description {
+      font-size: 0.82rem;
+      color: #374151;
+      line-height: 1.45;
+      margin-bottom: 8px;
+      max-width: 280px;
+    }
+    .popup-meta {
+      font-size: 0.75rem;
+      color: #6b7280;
+      line-height: 1.5;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #e5e7eb;
+    }
+    .popup-link {
+      color: #2563eb;
+      font-size: 0.82rem;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .popup-link:hover { text-decoration: underline; }
+    .popup-loading {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* Floating legend */
+    #campus-legend {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      background: rgba(26, 26, 46, 0.92);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.78rem;
+      z-index: 5;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      display: none;
+      min-width: 160px;
+    }
+    #campus-legend h4 {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #aaa;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .legend-row {
+      display: flex;
+      align-items: center;
+      padding: 3px 0;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    /* Tiny floating status chip (loading/error) */
+    #net-status {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      padding: 6px 10px;
+      background: rgba(26,26,46,0.9);
+      color: #ddd;
+      font-size: 0.72rem;
+      border-radius: 8px;
+      z-index: 5;
+      display: none;
+    }
+
+    /* Floating control pills (2D/3D, Tour) */
+    .pill {
+      position: absolute;
+      padding: 9px 14px;
+      background: rgba(26,26,46,0.92);
+      color: #fff;
+      border-radius: 22px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      user-select: none;
+      z-index: 5;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: background 0.15s, transform 0.1s;
+    }
+    .pill:hover { background: rgba(41,41,72,0.96); }
+    .pill:active { transform: scale(0.97); }
+    #view-toggle { right: 14px; bottom: 14px; }
+    #tour-btn    { right: 14px; bottom: 60px; display: none; }
+
+    /* Tour card overlay */
+    #tour-card {
+      position: absolute;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      width: min(480px, 92vw);
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.28);
+      padding: 16px 18px;
+      z-index: 6;
+      display: none;
+      font-size: 0.88rem;
+    }
+    #tour-card .tour-step {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #4facfe;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    #tour-card h3 {
+      font-size: 1.1rem;
+      color: #1a1a2e;
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+    #tour-card img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    #tour-card p { color: #374151; line-height: 1.5; margin-bottom: 12px; }
+    .tour-nav {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .tour-nav button {
+      padding: 7px 14px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #1a1a2e;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .tour-nav button:hover { background: #f3f4f6; }
+    .tour-nav button.primary {
+      background: #1a1a2e;
+      color: #fff;
+      border-color: #1a1a2e;
+    }
+    .tour-nav button.primary:hover { background: #2d2d4d; }
+    .tour-nav .spacer { flex: 1; }
+
+    /* Wikipedia facts table */
+    .wiki-facts {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2px 10px;
+      font-size: 0.78rem;
+      margin: 6px 0 8px;
+    }
+    .wiki-facts dt { color: #6b7280; font-weight: 600; }
+    .wiki-facts dd { color: #1a1a2e; }
   </style>
 </head>
 <body>
@@ -138,10 +338,32 @@
     <div id="college-list"></div>
     <div id="stats">Click a college to locate</div>
   </div>
-  <div id="map"></div>
+  <div id="map">
+    <div id="campus-legend">
+      <h4>Buildings</h4>
+      <div id="campus-legend-items"></div>
+    </div>
+    <div id="net-status"></div>
+    <div id="view-toggle" class="pill">3D</div>
+    <div id="tour-btn" class="pill">🎬 Take the tour</div>
+    <div id="tour-card">
+      <div class="tour-step"></div>
+      <h3></h3>
+      <img alt="" style="display:none">
+      <p></p>
+      <div class="tour-nav">
+        <button id="tour-prev">← Back</button>
+        <div class="spacer"></div>
+        <button id="tour-close">End tour</button>
+        <button id="tour-next" class="primary">Next →</button>
+      </div>
+    </div>
+  </div>
 
   <script>
-    // College data with coordinates and real acceptance rates from collegefit.counselorjay.com
+    // ────────────────────────────────────────────────────────────────
+    // College data — same structure as before
+    // ────────────────────────────────────────────────────────────────
     const colleges = [
       // Ivy League & Top Tier
       { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167, stats: { acceptance: "4%", sat: "1480-1590", act: "33-36", enrollment: "7,103" } },
@@ -201,102 +423,756 @@
       { name: "University of Colorado Boulder", city: "Boulder, CO", lat: 40.0076, lng: -105.2659, stats: { acceptance: "~79%" } },
       { name: "University of Utah", city: "Salt Lake City, UT", lat: 40.7649, lng: -111.8421, stats: { acceptance: "~89%" } },
       { name: "Brigham Young University", city: "Provo, UT", lat: 40.2523, lng: -111.6493, stats: { acceptance: "~67%" } },
-      // Hawaii Colleges
+      // Hawaii / Alaska
       { name: "University of Hawaii at Manoa", city: "Honolulu, HI", lat: 21.3069, lng: -157.8212, stats: { acceptance: "~64%" } },
       { name: "Hawaii Pacific University", city: "Honolulu, HI", lat: 21.3093, lng: -157.8623, stats: { acceptance: "~57%" } },
-      // Alaska Colleges
       { name: "University of Alaska Anchorage", city: "Anchorage, AK", lat: 61.1922, lng: -149.8924, stats: { acceptance: "~68%" } },
       { name: "University of Alaska Fairbanks", city: "Fairbanks, AK", lat: 64.8438, lng: -147.7339, stats: { acceptance: "~56%" } }
     ];
 
-    // Initialize map to show full USA view (including AK and HI)
-    const map = L.map('map').setView([39.8283, -113.0], 3);
-    
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
+    // ────────────────────────────────────────────────────────────────
+    // Map initialization — MapLibre GL with OpenFreeMap basemap
+    // ────────────────────────────────────────────────────────────────
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [-98.5, 39.5],
+      zoom: 3.5,
+      minZoom: 2,
+      maxZoom: 19,
+      attributionControl: { compact: true },
+    });
 
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
+
+    // ────────────────────────────────────────────────────────────────
+    // Building categories + styling
+    // ────────────────────────────────────────────────────────────────
+    const CATEGORIES = {
+      academic:    { label: 'Academic',    color: '#4facfe' },
+      residential: { label: 'Residential', color: '#f093fb' },
+      library:     { label: 'Library',     color: '#feca57' },
+      dining:      { label: 'Dining',      color: '#ff6b6b' },
+      athletic:    { label: 'Athletic',    color: '#5eead4' },
+      religious:   { label: 'Religious',   color: '#a78bfa' },
+      medical:     { label: 'Medical',     color: '#fb923c' },
+      other:       { label: 'Other',       color: '#94a3b8' },
+    };
+
+    // Expression for fill-color based on OSM tags. Assumes we set category on properties.
+    const CATEGORY_COLOR_EXPR = [
+      'match',
+      ['get', 'category'],
+      'academic', CATEGORIES.academic.color,
+      'residential', CATEGORIES.residential.color,
+      'library', CATEGORIES.library.color,
+      'dining', CATEGORIES.dining.color,
+      'athletic', CATEGORIES.athletic.color,
+      'religious', CATEGORIES.religious.color,
+      'medical', CATEGORIES.medical.color,
+      CATEGORIES.other.color,
+    ];
+
+    function classify(t) {
+      if (!t) return 'other';
+      const b = t.building, a = t.amenity, l = t.leisure;
+      if (b === 'university' || b === 'school' || b === 'college' || a === 'research_institute' || b === 'kindergarten') return 'academic';
+      if (b === 'dormitory' || b === 'residential' || b === 'apartments' || b === 'house' || b === 'detached' || b === 'semidetached_house' || b === 'terrace') return 'residential';
+      if (a === 'library' || b === 'library') return 'library';
+      if (a === 'cafe' || a === 'restaurant' || a === 'food_court' || a === 'fast_food' || b === 'cafeteria') return 'dining';
+      if (l === 'sports_centre' || l === 'stadium' || b === 'stadium' || b === 'sports_hall' || b === 'grandstand') return 'athletic';
+      if (a === 'place_of_worship' || b === 'chapel' || b === 'church' || b === 'cathedral') return 'religious';
+      if (a === 'hospital' || a === 'clinic' || b === 'hospital') return 'medical';
+      return 'other';
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Pre-fetched campus loader — one static file per college
+    // ────────────────────────────────────────────────────────────────
+    const ZOOM_THRESHOLD = 13;          // below this, no campus shown
+    const NEAREST_RADIUS_DEG = 0.05;    // if view center within this distance of a college, load it
+
+    // slug -> FeatureCollection (in-memory cache)
+    const campusCache = new Map();
+    const campusInflight = new Map();
+    let activeCampusSlug = null;
+
+    function slugFor(college) {
+      return college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+    }
+
+    function findNearestCollege(center) {
+      let best = null, bestD = Infinity;
+      for (const c of colleges) {
+        const dy = Math.abs(center.lat - c.lat);
+        const dx = Math.abs(center.lng - c.lng);
+        const d = dy + dx; // manhattan is fine for tiny bboxes
+        if (d < bestD) { bestD = d; best = c; }
+      }
+      if (best && bestD < NEAREST_RADIUS_DEG) return best;
+      return null;
+    }
+
+    async function loadCampusData(college) {
+      const slug = slugFor(college);
+      if (campusCache.has(slug)) return campusCache.get(slug);
+      if (campusInflight.has(slug)) return campusInflight.get(slug);
+
+      const p = (async () => {
+        try {
+          const res = await fetch(`./data/buildings/${slug}.geojson`, { cache: 'no-cache' });
+          if (!res.ok) {
+            console.warn(`No campus data for ${slug} (${res.status})`);
+            campusCache.set(slug, null);
+            return null;
+          }
+          const fc = await res.json();
+          campusCache.set(slug, fc);
+          return fc;
+        } catch (err) {
+          console.warn(`Failed to load campus ${slug}:`, err);
+          campusCache.set(slug, null);
+          return null;
+        } finally {
+          campusInflight.delete(slug);
+        }
+      })();
+      campusInflight.set(slug, p);
+      return p;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Layer updates
+    // ────────────────────────────────────────────────────────────────
+    let updateToken = 0; // used to cancel stale updates
+
+    function showStatus(text) {
+      const el = document.getElementById('net-status');
+      if (!text) { el.style.display = 'none'; return; }
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+
+    async function updateBuildings() {
+      const myToken = ++updateToken;
+      const zoom = map.getZoom();
+      const source = map.getSource('buildings');
+      if (!source) return;
+
+      if (zoom < ZOOM_THRESHOLD) {
+        source.setData({ type: 'FeatureCollection', features: [] });
+        document.getElementById('campus-legend').style.display = 'none';
+        showStatus('');
+        activeCampusSlug = null;
+        return;
+      }
+
+      const nearest = findNearestCollege(map.getCenter());
+      if (!nearest) {
+        source.setData({ type: 'FeatureCollection', features: [] });
+        document.getElementById('campus-legend').style.display = 'none';
+        showStatus('Zoom onto a college pin to see campus buildings');
+        activeCampusSlug = null;
+        return;
+      }
+
+      const slug = slugFor(nearest);
+      if (slug === activeCampusSlug && campusCache.has(slug)) return; // already rendering
+
+      showStatus(`Loading ${nearest.name}…`);
+      const fc = await loadCampusData(nearest);
+      if (myToken !== updateToken) return; // stale
+
+      if (!fc) {
+        source.setData({ type: 'FeatureCollection', features: [] });
+        showStatus(`No campus data yet for ${nearest.name}`);
+        activeCampusSlug = null;
+        return;
+      }
+
+      activeCampusSlug = slug;
+      source.setData(fc);
+      showStatus(fc.features.length ? '' : `No buildings found for ${nearest.name}`);
+      renderLegendIfData(fc.features);
+    }
+
+    function renderLegendIfData(features) {
+      const el = document.getElementById('campus-legend');
+      if (!features.length) { el.style.display = 'none'; return; }
+      const counts = {};
+      for (const k of Object.keys(CATEGORIES)) counts[k] = 0;
+      for (const f of features) counts[f.properties.category]++;
+      const items = document.getElementById('campus-legend-items');
+      items.innerHTML = Object.entries(CATEGORIES)
+        .filter(([k]) => counts[k] > 0)
+        .map(([k, cat]) => `
+          <div class="legend-row">
+            <div class="legend-swatch" style="background:${cat.color}"></div>
+            <div>${cat.label}</div>
+          </div>
+        `).join('');
+      el.style.display = 'block';
+    }
+
+    // Debounce moveend
+    let moveDebounce = null;
+    function scheduleUpdate() {
+      clearTimeout(moveDebounce);
+      moveDebounce = setTimeout(updateBuildings, 300);
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Map ready: add buildings source + layers, hide basemap buildings,
+    // install event handlers
+    // ────────────────────────────────────────────────────────────────
+    map.on('load', () => {
+      // Hide basemap clutter so only our building polygons + essentials show
+      const HIDE = new Set([
+        'building', 'building-3d',
+        'poi_r20', 'poi_r7', 'poi_r1', 'poi_transit',
+        'landuse_pitch', 'landuse_hospital', 'landuse_school',
+        'landuse_residential', 'landuse_track',
+        'landuse_cemetery',
+        'aeroway_fill', 'aeroway_runway', 'aeroway_taxiway',
+        'airport',
+        'road_one_way_arrow', 'road_one_way_arrow_opposite',
+        'highway-shield-non-us', 'highway-shield-us-interstate', 'road_shield_us',
+      ]);
+      for (const l of map.getStyle().layers || []) {
+        if (HIDE.has(l.id)) map.setLayoutProperty(l.id, 'visibility', 'none');
+      }
+
+      // Our buildings source + layers
+      map.addSource('buildings', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+
+      map.addLayer({
+        id: 'buildings-fill',
+        type: 'fill',
+        source: 'buildings',
+        paint: {
+          'fill-color': CATEGORY_COLOR_EXPR,
+          'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.85, 0.6],
+        },
+      });
+      map.addLayer({
+        id: 'buildings-outline',
+        type: 'line',
+        source: 'buildings',
+        paint: {
+          'line-color': CATEGORY_COLOR_EXPR,
+          'line-width': ['case', ['boolean', ['feature-state', 'hover'], false], 2.2, 0.8],
+        },
+      });
+      map.addLayer({
+        id: 'buildings-3d',
+        type: 'fill-extrusion',
+        source: 'buildings',
+        layout: { visibility: 'none' },
+        paint: {
+          'fill-extrusion-color': CATEGORY_COLOR_EXPR,
+          'fill-extrusion-height': [
+            'case',
+            ['has', 'height'],
+              ['max', ['to-number', ['get', 'height']], 6],
+            ['has', 'building:levels'],
+              ['*', ['to-number', ['get', 'building:levels']], 3.5],
+            12,
+          ],
+          'fill-extrusion-base': [
+            'case',
+            ['has', 'min_height'], ['to-number', ['get', 'min_height']],
+            ['has', 'building:min_level'], ['*', ['to-number', ['get', 'building:min_level']], 3.5],
+            0,
+          ],
+          'fill-extrusion-opacity': 0.88,
+        },
+      });
+
+      // College pins — one DOM marker per college so we can attach a click handler
+      for (const college of colleges) {
+        const el = document.createElement('div');
+        el.className = 'college-marker';
+        el.title = college.name;
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          focusOnCollege(college);
+        });
+        const marker = new maplibregl.Marker({ element: el })
+          .setLngLat([college.lng, college.lat])
+          .addTo(map);
+        markers[college.name] = { marker, el };
+      }
+
+      // Hover effect for buildings
+      let hoveredId = null;
+      map.on('mousemove', 'buildings-fill', (e) => {
+        if (!e.features || !e.features.length) return;
+        map.getCanvas().style.cursor = 'pointer';
+        const f = e.features[0];
+        if (hoveredId !== null && hoveredId !== f.id) {
+          map.setFeatureState({ source: 'buildings', id: hoveredId }, { hover: false });
+        }
+        hoveredId = f.id;
+        map.setFeatureState({ source: 'buildings', id: f.id }, { hover: true });
+      });
+      map.on('mouseleave', 'buildings-fill', () => {
+        map.getCanvas().style.cursor = '';
+        if (hoveredId !== null) {
+          map.setFeatureState({ source: 'buildings', id: hoveredId }, { hover: false });
+        }
+        hoveredId = null;
+      });
+
+      map.on('click', 'buildings-fill', (e) => {
+        if (!e.features || !e.features.length) return;
+        openBuildingPopup(e.features[0], e.lngLat);
+      });
+
+      // Update buildings whenever the view changes
+      map.on('moveend', scheduleUpdate);
+      map.on('zoomend', scheduleUpdate);
+    });
+
+    // ────────────────────────────────────────────────────────────────
+    // Popups
+    // ────────────────────────────────────────────────────────────────
     const markers = {};
+    let activePopup = null;
+    let activeMarkerName = null;
+
+    function focusOnCollege(college) {
+      // Highlight in sidebar
+      document.querySelectorAll('.college-item').forEach((el) => el.classList.remove('active'));
+      document.querySelectorAll('.college-item').forEach((el) => {
+        if (el.querySelector('.college-name').innerText === college.name) el.classList.add('active');
+      });
+
+      if (activeMarkerName && markers[activeMarkerName]) markers[activeMarkerName].el.classList.remove('active');
+      if (markers[college.name]) markers[college.name].el.classList.add('active');
+      activeMarkerName = college.name;
+
+      let zoom = 15;
+      if (college.city.includes('HI') || college.city.includes('AK')) zoom = 10;
+
+      map.flyTo({ center: [college.lng, college.lat], zoom, duration: 1400 });
+
+      map.once('moveend', () => openCollegePopup(college));
+    }
+
+    function openCollegePopup(college) {
+      if (activePopup) activePopup.remove();
+      const s = college.stats || {};
+      const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+      let statsHtml = `<span><b>Acceptance:</b> ${s.acceptance || 'N/A'}</span>`;
+      if (s.sat) statsHtml += `<span><b>SAT:</b> ${s.sat}</span>`;
+      if (s.act) statsHtml += `<span><b>ACT:</b> ${s.act}</span>`;
+      if (s.enrollment) statsHtml += `<span><b>Enrollment:</b> ${s.enrollment}</span>`;
+
+      const html = `
+        <div class="popup-name">${escapeHtml(college.name)}</div>
+        <div class="popup-location">${escapeHtml(college.city)}</div>
+        <div class="popup-stats">
+          ${statsHtml}
+          <span style="margin-top:8px;display:block;color:#4facfe;font-weight:600;">🗺️ Zoom in to explore buildings</span>
+          <span style="margin-top:8px;display:block;"><a href="https://collegefit.counselorjay.com/${slug}.html" target="_blank" class="popup-link">View Full Profile →</a></span>
+        </div>
+      `;
+      activePopup = new maplibregl.Popup({ maxWidth: '320px', offset: 14 })
+        .setLngLat([college.lng, college.lat])
+        .setHTML(html)
+        .addTo(map);
+    }
+
+    function openBuildingPopup(feature, lngLat) {
+      if (activePopup) activePopup.remove();
+      const p = feature.properties || {};
+      const category = p.category || 'other';
+      const color = CATEGORIES[category].color;
+      const name = p.name || 'Unnamed building';
+
+      let html = `
+        <div class="popup-name">${escapeHtml(name)}</div>
+        <div class="popup-category" style="background:${color}">${CATEGORIES[category].label}</div>
+      `;
+
+      // If we baked Wikipedia data into the geojson, render it directly — no runtime fetch.
+      const hasWiki = !!p.wikiTitle;
+      if (hasWiki && p.wikiPhoto) {
+        html += `<img class="popup-photo" src="${p.wikiPhoto}" alt="${escapeHtml(name)}">`;
+      }
+      if (hasWiki && p.wikiDescription) {
+        html += `<div style="font-size:0.75rem;color:#6b7280;font-style:italic;margin-bottom:6px;">${escapeHtml(p.wikiDescription)}</div>`;
+      }
+      if (hasWiki && p.wikiExtract) {
+        html += `<div class="popup-description">${escapeHtml(p.wikiExtract)}</div>`;
+      }
+
+      // Combine OSM + Wikidata facts
+      const facts = [];
+      if (p.architect) facts.push(['Architect', p.architect]);
+      const built = p.wikiBuilt || p.start_date;
+      if (built) facts.push(['Built', built]);
+      if (p.wikiHeight) facts.push(['Height', p.wikiHeight]);
+      if (p['building:levels']) facts.push(['Floors', p['building:levels']]);
+      if (p.operator) facts.push(['Operator', p.operator]);
+      if (p['addr:street']) {
+        const num = p['addr:housenumber'] || '';
+        facts.push(['Address', `${num} ${p['addr:street']}`.trim()]);
+      }
+
+      if (facts.length) {
+        html += '<dl class="wiki-facts">' +
+          facts.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join('') +
+          '</dl>';
+      }
+
+      // Links row
+      const links = [];
+      if (hasWiki && p.wikiUrl) {
+        links.push(`<a class="popup-link" href="${p.wikiUrl}" target="_blank" rel="noopener">Read on Wikipedia →</a>`);
+      }
+      const centroidLngLat = lngLat && lngLat.lng !== undefined
+        ? `${lngLat.lat},${lngLat.lng}`
+        : null;
+      if (centroidLngLat) {
+        links.push(`<a class="popup-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}&query_place_id=${centroidLngLat}" target="_blank" rel="noopener">Google Maps →</a>`);
+      }
+      if (p.osmId) {
+        links.push(`<a class="popup-link" href="https://www.openstreetmap.org/way/${p.osmId}" target="_blank" rel="noopener">OSM →</a>`);
+      }
+      if (links.length) html += `<div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;">${links.join('')}</div>`;
+
+      // Graceful empty state: no name, no tags, no wiki → still show something
+      if (!hasWiki && facts.length === 0 && !p.name) {
+        html += `<div style="font-size:0.8rem;color:#6b7280;">No details available for this building. It's part of the campus but OpenStreetMap doesn't have more info about it yet.</div>`;
+      }
+
+      activePopup = new maplibregl.Popup({ maxWidth: '340px', offset: 8 })
+        .setLngLat(lngLat)
+        .setHTML(html)
+        .addTo(map);
+    }
+
+    // ── Wikipedia enrichment ──────────────────────────────────────
+    // Try the explicit tag first; if missing, search by name + "Stanford"/college context.
+    const wikiCache = new Map(); // title -> data, to avoid duplicate network
+
+    async function resolveWikiTitle(tags, name) {
+      if (typeof tags.wikipedia === 'string') {
+        const parts = tags.wikipedia.split(':');
+        if (parts.length >= 2 && parts[0] === 'en') return parts.slice(1).join(':');
+      }
+      if (!name || name === 'Unnamed building') return null;
+      try {
+        const query = encodeURIComponent(name);
+        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${query}&srlimit=1&format=json&origin=*`;
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const hit = data?.query?.search?.[0];
+        if (!hit) return null;
+        // Only accept matches with high relevance to avoid wild redirects
+        if (!hit.title.toLowerCase().includes(name.toLowerCase().split(' ')[0].toLowerCase())) return null;
+        return hit.title.replace(/ /g, '_');
+      } catch {
+        return null;
+      }
+    }
+
+    async function fetchWikiSummary(title) {
+      if (wikiCache.has(title)) return wikiCache.get(title);
+      try {
+        const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
+        if (!res.ok) { wikiCache.set(title, null); return null; }
+        const data = await res.json();
+        wikiCache.set(title, data);
+        return data;
+      } catch {
+        wikiCache.set(title, null);
+        return null;
+      }
+    }
+
+    async function fetchWikidataFacts(qid) {
+      if (!qid) return {};
+      try {
+        const res = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`);
+        if (!res.ok) return {};
+        const data = await res.json();
+        const entity = data.entities?.[qid];
+        const claims = entity?.claims || {};
+        const facts = {};
+        // P571 inception (year)
+        const incep = claims.P571?.[0]?.mainsnak?.datavalue?.value?.time;
+        if (incep) facts.built = incep.split('-')[0].replace(/^\+/, '');
+        // P2048 height in meters
+        const h = claims.P2048?.[0]?.mainsnak?.datavalue?.value;
+        if (h?.amount) facts.height = `${Math.round(Number(h.amount))} m`;
+        // P1081 number of floors — rarely set on buildings, skip
+        // Architect label requires a second fetch; skip to keep snappy
+        return facts;
+      } catch { return {}; }
+    }
+
+    async function enrichWithWiki(tags, name) {
+      const el = document.getElementById('popup-wiki');
+      if (!el) return;
+
+      const title = await resolveWikiTitle(tags, name);
+      if (!title) { el.remove(); return; }
+      const data = await fetchWikiSummary(title);
+      if (!data) { el.remove(); return; }
+
+      const facts = data.wikibase_item ? await fetchWikidataFacts(data.wikibase_item) : {};
+      const live = document.getElementById('popup-wiki');
+      if (!live) return;
+
+      // Build enriched block
+      const parts = [];
+      const img = data.originalimage?.source && data.originalimage.width >= 320
+        ? data.originalimage.source
+        : data.thumbnail?.source;
+      if (img) parts.push(`<img class="popup-photo" src="${img}" alt="${escapeHtml(name)}">`);
+      if (data.description) {
+        parts.push(`<div style="font-size:0.75rem;color:#6b7280;font-style:italic;margin-bottom:6px;">${escapeHtml(data.description)}</div>`);
+      }
+      if (data.extract) {
+        parts.push(`<div class="popup-description">${escapeHtml(data.extract)}</div>`);
+      }
+
+      // Facts combine Wikidata with OSM
+      const osmFacts = [];
+      if (tags.architect) osmFacts.push(['Architect', tags.architect]);
+      if (!facts.built && tags.start_date) osmFacts.push(['Built', tags.start_date]);
+      if (facts.built) osmFacts.push(['Built', facts.built]);
+      if (facts.height) osmFacts.push(['Height', facts.height]);
+      if (tags['building:levels']) osmFacts.push(['Floors', tags['building:levels']]);
+      if (tags.operator) osmFacts.push(['Operator', tags.operator]);
+      if (osmFacts.length) {
+        parts.push('<dl class="wiki-facts">' +
+          osmFacts.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join('') +
+          '</dl>');
+      }
+
+      const url = data.content_urls?.desktop?.page;
+      if (url) parts.push(`<a class="popup-link" href="${url}" target="_blank" rel="noopener">Read on Wikipedia →</a>`);
+
+      live.outerHTML = parts.join('');
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Sidebar list + search
+    // ────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // 3D / 2D toggle
+    // ────────────────────────────────────────────────────────────────
+    let is3D = false;
+    const viewToggle = document.getElementById('view-toggle');
+    viewToggle.addEventListener('click', () => {
+      is3D = !is3D;
+      viewToggle.textContent = is3D ? '2D' : '3D';
+      if (map.getLayer('buildings-3d')) {
+        map.setLayoutProperty('buildings-3d', 'visibility', is3D ? 'visible' : 'none');
+        map.setLayoutProperty('buildings-fill', 'visibility', is3D ? 'none' : 'visible');
+      }
+      map.easeTo({ pitch: is3D ? 50 : 0, bearing: is3D ? -18 : 0, duration: 800 });
+    });
+
+    // ────────────────────────────────────────────────────────────────
+    // Guided tour
+    // ────────────────────────────────────────────────────────────────
+    const TOURS = {
+      stanford: {
+        anchor: [37.4275, -122.1697],
+        radius: 0.04, // degrees — tour button lights up when view center is within this
+        name: 'Stanford University',
+        stops: [
+          {
+            title: 'Main Quad & Memorial Court',
+            center: [-122.17012, 37.42722],
+            zoom: 17, pitch: 50, bearing: -25,
+            summary: "Stanford's historic sandstone heart. The twin rows of arcades surround Memorial Court and frame the view of Memorial Church—the first stop most campus tours take.",
+            wiki: 'Stanford_Main_Quad',
+          },
+          {
+            title: 'Stanford Memorial Church',
+            center: [-122.17003, 37.42714],
+            zoom: 18, pitch: 55, bearing: -20,
+            summary: 'The non-denominational church at the center of campus, built in 1903 and rebuilt after the 1906 earthquake. Its Venetian-style mosaics are some of the most-photographed images of Stanford.',
+            wiki: 'Stanford_Memorial_Church',
+          },
+          {
+            title: 'Hoover Tower',
+            center: [-122.1669, 37.4275],
+            zoom: 17.5, pitch: 60, bearing: -30,
+            summary: "At 285 feet, Hoover Tower is Stanford's most recognizable landmark. It houses the Hoover Institution Library & Archives—one of the largest private collections of political documents in the world.",
+            wiki: 'Hoover_Tower',
+          },
+          {
+            title: 'Cecil H. Green Library',
+            center: [-122.1668, 37.4269],
+            zoom: 17.5, pitch: 45, bearing: -10,
+            summary: "The main library of the Stanford Libraries system, holding more than 4 million volumes. It's the research hub for humanities and social sciences.",
+            wiki: 'Cecil_H._Green_Library',
+          },
+          {
+            title: 'Cantor Arts Center & Rodin Sculpture Garden',
+            center: [-122.1707, 37.4322],
+            zoom: 17, pitch: 50, bearing: -15,
+            summary: "Stanford's art museum, home to over 38,000 works across 24 galleries, plus one of the largest Rodin collections outside Paris in the adjacent sculpture garden.",
+            wiki: 'Cantor_Arts_Center',
+          },
+          {
+            title: 'Hasso Plattner Institute of Design (d.school)',
+            center: [-122.17226, 37.42536],
+            zoom: 18, pitch: 55, bearing: -20,
+            summary: "Stanford's cross-disciplinary design school. Not a degree program—any student can join classes here. Famous for shaping how Silicon Valley thinks about product design.",
+            wiki: 'Hasso_Plattner_Institute_of_Design',
+          },
+          {
+            title: 'Knight Management Center (Stanford GSB)',
+            center: [-122.1602, 37.4290],
+            zoom: 17, pitch: 50, bearing: -25,
+            summary: "The Graduate School of Business campus, opened in 2011. A LEED Platinum complex of eight interconnected buildings designed around a central courtyard.",
+            wiki: 'Stanford_Graduate_School_of_Business',
+          },
+          {
+            title: 'Stanford Stadium',
+            center: [-122.1586, 37.4347],
+            zoom: 16.5, pitch: 55, bearing: -30,
+            summary: "Home of Stanford Cardinal football. Rebuilt in 2006 as an intimate 50,000-seat bowl (down from 85,000)—fans are famously close to the field.",
+            wiki: 'Stanford_Stadium',
+          },
+        ],
+      },
+    };
+
+    const tourBtn = document.getElementById('tour-btn');
+    const tourCard = document.getElementById('tour-card');
+    let activeTour = null;
+    let tourIndex = 0;
+
+    function maybeShowTourButton() {
+      const c = map.getCenter();
+      const z = map.getZoom();
+      let match = null;
+      for (const [key, t] of Object.entries(TOURS)) {
+        const dy = Math.abs(c.lat - t.anchor[0]);
+        const dx = Math.abs(c.lng - t.anchor[1]);
+        if (dy < t.radius && dx < t.radius && z >= 13) { match = key; break; }
+      }
+      if (match && !activeTour) {
+        tourBtn.style.display = 'block';
+        tourBtn.dataset.tour = match;
+        tourBtn.textContent = `🎬 Take the ${TOURS[match].name.split(' ')[0]} tour`;
+      } else if (!activeTour) {
+        tourBtn.style.display = 'none';
+      }
+    }
+
+    tourBtn.addEventListener('click', () => startTour(tourBtn.dataset.tour));
+
+    function startTour(key) {
+      const t = TOURS[key];
+      if (!t) return;
+      activeTour = t;
+      tourIndex = 0;
+      tourBtn.style.display = 'none';
+      tourCard.style.display = 'block';
+      renderTourStop();
+    }
+
+    async function renderTourStop() {
+      if (!activeTour) return;
+      const stop = activeTour.stops[tourIndex];
+      tourCard.querySelector('.tour-step').textContent = `Stop ${tourIndex + 1} of ${activeTour.stops.length}`;
+      tourCard.querySelector('h3').textContent = stop.title;
+      tourCard.querySelector('p').textContent = stop.summary;
+
+      const imgEl = tourCard.querySelector('img');
+      imgEl.style.display = 'none';
+      imgEl.removeAttribute('src');
+
+      document.getElementById('tour-prev').disabled = tourIndex === 0;
+      const nextBtn = document.getElementById('tour-next');
+      nextBtn.textContent = (tourIndex === activeTour.stops.length - 1) ? 'Finish' : 'Next →';
+
+      map.easeTo({
+        center: stop.center,
+        zoom: stop.zoom,
+        pitch: stop.pitch ?? 45,
+        bearing: stop.bearing ?? 0,
+        duration: 1600,
+      });
+
+      // Auto-enable 3D during tour
+      if (!is3D) viewToggle.click();
+
+      // Lazy-load the stop photo from Wikipedia
+      if (stop.wiki) {
+        const data = await fetchWikiSummary(stop.wiki);
+        if (data && (data.originalimage?.source || data.thumbnail?.source)) {
+          imgEl.src = data.originalimage?.source || data.thumbnail.source;
+          imgEl.style.display = 'block';
+        }
+      }
+    }
+
+    function endTour() {
+      if (!activeTour) return;
+      activeTour = null;
+      tourCard.style.display = 'none';
+      maybeShowTourButton();
+    }
+
+    document.getElementById('tour-prev').addEventListener('click', () => {
+      if (!activeTour || tourIndex === 0) return;
+      tourIndex--;
+      renderTourStop();
+    });
+    document.getElementById('tour-next').addEventListener('click', () => {
+      if (!activeTour) return;
+      if (tourIndex === activeTour.stops.length - 1) { endTour(); return; }
+      tourIndex++;
+      renderTourStop();
+    });
+    document.getElementById('tour-close').addEventListener('click', endTour);
+
+    map.on('moveend', maybeShowTourButton);
+    map.on('zoomend', maybeShowTourButton);
+
+    // ────────────────────────────────────────────────────────────────
+    // Sidebar list + search
+    // ────────────────────────────────────────────────────────────────
     const listEl = document.getElementById('college-list');
     const searchEl = document.getElementById('search');
     const statsEl = document.getElementById('stats');
-    let activeMarker = null;
 
-    // Render college list
     function renderList(filter = '') {
       listEl.innerHTML = '';
-      const filtered = colleges.filter(c => 
-        c.name.toLowerCase().includes(filter.toLowerCase()) ||
-        c.city.toLowerCase().includes(filter.toLowerCase())
+      const f = filter.toLowerCase();
+      const filtered = colleges.filter((c) =>
+        c.name.toLowerCase().includes(f) || c.city.toLowerCase().includes(f)
       );
-      
-      filtered.forEach(college => {
+      for (const college of filtered) {
         const div = document.createElement('div');
         div.className = 'college-item';
         div.innerHTML = `
-          <div class="college-name">${college.name}</div>
-          <div class="college-location">${college.city}</div>
+          <div class="college-name">${escapeHtml(college.name)}</div>
+          <div class="college-location">${escapeHtml(college.city)}</div>
         `;
         div.addEventListener('click', () => focusOnCollege(college));
         listEl.appendChild(div);
-      });
+      }
       statsEl.innerText = `Found ${filtered.length} colleges. Click one to locate.`;
     }
-
-    // Focus on college and show popup
-    function focusOnCollege(college) {
-      // Update active state in list
-      document.querySelectorAll('.college-item').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.college-item').forEach(itemEl => {
-        if (itemEl.querySelector('.college-name').innerText === college.name) {
-          itemEl.classList.add('active');
-        }
-      });
-      
-      // Determine zoom level - closer for HI/AK
-      let zoomLevel = 10;
-      if (college.city.includes("HI") || college.city.includes("AK")) {
-        zoomLevel = 6;
-      }
-      
-      // Fly to location
-      map.flyTo([college.lat, college.lng], zoomLevel, {
-        duration: 1.5
-      });
-      
-      // Show popup
-      setTimeout(() => {
-        const stats = college.stats;
-        let statsHtml = `<span><b>Acceptance:</b> ${stats.acceptance || 'N/A'}</span>`;
-        if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
-        if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
-        if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
-        
-        const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
-        const popupContent = `
-          <div class="popup-name">${college.name}</div>
-          <div class="popup-location">${college.city}</div>
-          <div class="popup-stats">
-            ${statsHtml}
-            <span style="margin-top:8px;display:block;"><a href="https://collegefit.counselorjay.com/${slug}.html" target="_blank" style="color:#4facfe;">View Full Profile →</a></span>
-          </div>
-        `;
-        const popup = L.popup({ maxWidth: 320 })
-          .setLatLng([college.lat, college.lng])
-          .setContent(popupContent)
-          .openOn(map);
-        activeMarker = popup;
-      }, 1600);
-    }
-
-    // Search functionality
-    searchEl.addEventListener('input', (e) => {
-      renderList(e.target.value);
-    });
-
-    // Initial render
+    searchEl.addEventListener('input', (e) => renderList(e.target.value));
     renderList();
   </script>
 </body>
