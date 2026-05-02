@@ -86,13 +86,42 @@
       color: #888;
     }
     
-    #map {
-      flex: 1;
-    }
-    
-    .leaflet-popup-content-wrapper {
-      border-radius: 8px;
-    }
+	    #map {
+	      flex: 1;
+	    }
+
+	    .college-pin {
+	      width: 16px;
+	      height: 16px;
+	      background: #e73c3c;
+	      border: 2px solid #fff;
+	      border-radius: 50% 50% 50% 0;
+	      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+	      transform: rotate(-45deg);
+	      transform-origin: center;
+	      position: relative;
+	      cursor: pointer;
+	    }
+
+	    .college-pin::after {
+	      content: "";
+	      position: absolute;
+	      width: 6px;
+	      height: 6px;
+	      top: 3px;
+	      left: 3px;
+	      background: #fff;
+	      border-radius: 50%;
+	    }
+
+	    .college-pin.active {
+	      background: #4facfe;
+	      box-shadow: 0 0 0 5px rgba(79, 172, 254, 0.22), 0 2px 10px rgba(0, 0, 0, 0.35);
+	    }
+
+	    .leaflet-popup-content-wrapper {
+	      border-radius: 8px;
+	    }
     
     .popup-name {
       font-weight: 600;
@@ -114,10 +143,18 @@
       border-top: 1px dashed #ccc;
     }
     
-    .popup-stats span {
-      display: block;
-      margin-bottom: 4px;
-    }
+	    .popup-stats span {
+	      display: block;
+	      margin-bottom: 4px;
+	    }
+
+	    .popup-action {
+	      color: #4facfe;
+	      display: block;
+	      font-size: 0.75rem;
+	      font-weight: 600;
+	      margin-top: 8px;
+	    }
     
     #stats {
       padding: 15px 20px;
@@ -136,7 +173,7 @@
       <input type="text" id="search" placeholder="Search colleges...">
     </div>
     <div id="college-list"></div>
-    <div id="stats">Click a college to locate</div>
+	    <div id="stats">Hover over pins for details</div>
   </div>
   <div id="map"></div>
 
@@ -209,8 +246,37 @@
       { name: "University of Alaska Fairbanks", city: "Fairbanks, AK", lat: 64.8438, lng: -147.7339, stats: { acceptance: "~56%" } }
     ];
 
-    // Initialize map to show full USA view (including AK and HI)
-    const map = L.map('map').setView([39.8283, -113.0], 3);
+	    // Keep the map anchored in a national view so students can compare regions.
+	    const usaView = {
+	      center: [39.8283, -113.0],
+	      zoom: 3
+	    };
+
+	    const map = L.map('map', {
+	      zoomControl: false,
+	      dragging: false,
+	      scrollWheelZoom: false,
+	      doubleClickZoom: false,
+	      boxZoom: false,
+	      keyboard: false,
+	      touchZoom: false,
+	      minZoom: usaView.zoom,
+	      maxZoom: usaView.zoom
+	    }).setView(usaView.center, usaView.zoom);
+
+	    function resetStaticFrame() {
+	      const center = map.getCenter();
+	      const isCentered = Math.abs(center.lat - usaView.center[0]) < 0.0001 &&
+	        Math.abs(center.lng - usaView.center[1]) < 0.0001;
+
+	      if (!isCentered || map.getZoom() !== usaView.zoom) {
+	        map.setView(usaView.center, usaView.zoom, { animate: false });
+	      }
+	    }
+
+	    map.on('move zoom moveend zoomend', () => {
+	      window.setTimeout(resetStaticFrame, 0);
+	    });
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -218,11 +284,91 @@
       maxZoom: 19
     }).addTo(map);
 
-    const markers = {};
-    const listEl = document.getElementById('college-list');
-    const searchEl = document.getElementById('search');
-    const statsEl = document.getElementById('stats');
-    let activeMarker = null;
+	    const markers = {};
+	    const listEl = document.getElementById('college-list');
+	    const searchEl = document.getElementById('search');
+	    const statsEl = document.getElementById('stats');
+	    let activeCollege = null;
+
+	    function getProfileUrl(college) {
+	      const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+	      return `https://collegefit.counselorjay.com/${slug}.html`;
+	    }
+
+	    function buildPopupContent(college) {
+	      const stats = college.stats;
+	      let statsHtml = `<span><b>Acceptance:</b> ${stats.acceptance || 'N/A'}</span>`;
+	      if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
+	      if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
+	      if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
+
+	      return `
+	        <div class="popup-name">${college.name}</div>
+	        <div class="popup-location">${college.city}</div>
+	        <div class="popup-stats">
+	          ${statsHtml}
+	          <span class="popup-action">Click pin for full profile</span>
+	        </div>
+	      `;
+	    }
+
+	    function setActiveCollege(college) {
+	      activeCollege = college;
+
+	      document.querySelectorAll('.college-item').forEach(itemEl => {
+	        const itemName = itemEl.querySelector('.college-name').innerText;
+	        itemEl.classList.toggle('active', itemName === college.name);
+	      });
+
+	      Object.values(markers).forEach(marker => {
+	        const markerEl = marker.getElement();
+	        const pinEl = markerEl && markerEl.querySelector('.college-pin');
+	        if (pinEl) pinEl.classList.remove('active');
+	      });
+
+	      const marker = markers[college.name];
+	      const markerEl = marker && marker.getElement();
+	      const pinEl = markerEl && markerEl.querySelector('.college-pin');
+	      if (pinEl) pinEl.classList.add('active');
+	    }
+
+	    function showCollegePopup(college) {
+	      setActiveCollege(college);
+	      markers[college.name].openPopup();
+	      resetStaticFrame();
+	      statsEl.innerText = `${college.name} is in ${college.city}.`;
+	    }
+
+	    function openCollegeProfile(college) {
+	      window.open(getProfileUrl(college), '_blank', 'noopener');
+	    }
+
+	    const pinIcon = L.divIcon({
+	      className: '',
+	      html: '<div class="college-pin"></div>',
+	      iconSize: [18, 24],
+	      iconAnchor: [9, 23],
+	      popupAnchor: [0, -22]
+	    });
+
+	    colleges.forEach(college => {
+	      const marker = L.marker([college.lat, college.lng], {
+	        icon: pinIcon,
+	        title: college.name,
+	        riseOnHover: true
+	      }).addTo(map);
+
+	      marker.bindPopup(buildPopupContent(college), {
+	        maxWidth: 260,
+	        closeButton: false,
+	        autoPan: false
+	      });
+
+	      marker.on('mouseover', () => showCollegePopup(college));
+	      marker.on('focus', () => showCollegePopup(college));
+	      marker.on('click', () => openCollegeProfile(college));
+	      markers[college.name] = marker;
+	    });
 
     // Render college list
     function renderList(filter = '') {
@@ -232,64 +378,21 @@
         c.city.toLowerCase().includes(filter.toLowerCase())
       );
       
-      filtered.forEach(college => {
-        const div = document.createElement('div');
-        div.className = 'college-item';
+	      filtered.forEach(college => {
+	        const div = document.createElement('div');
+	        div.className = `college-item${activeCollege && activeCollege.name === college.name ? ' active' : ''}`;
         div.innerHTML = `
           <div class="college-name">${college.name}</div>
           <div class="college-location">${college.city}</div>
         `;
-        div.addEventListener('click', () => focusOnCollege(college));
-        listEl.appendChild(div);
-      });
-      statsEl.innerText = `Found ${filtered.length} colleges. Click one to locate.`;
-    }
-
-    // Focus on college and show popup
-    function focusOnCollege(college) {
-      // Update active state in list
-      document.querySelectorAll('.college-item').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.college-item').forEach(itemEl => {
-        if (itemEl.querySelector('.college-name').innerText === college.name) {
-          itemEl.classList.add('active');
-        }
-      });
-      
-      // Determine zoom level - closer for HI/AK
-      let zoomLevel = 10;
-      if (college.city.includes("HI") || college.city.includes("AK")) {
-        zoomLevel = 6;
-      }
-      
-      // Fly to location
-      map.flyTo([college.lat, college.lng], zoomLevel, {
-        duration: 1.5
-      });
-      
-      // Show popup
-      setTimeout(() => {
-        const stats = college.stats;
-        let statsHtml = `<span><b>Acceptance:</b> ${stats.acceptance || 'N/A'}</span>`;
-        if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
-        if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
-        if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
-        
-        const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
-        const popupContent = `
-          <div class="popup-name">${college.name}</div>
-          <div class="popup-location">${college.city}</div>
-          <div class="popup-stats">
-            ${statsHtml}
-            <span style="margin-top:8px;display:block;"><a href="https://collegefit.counselorjay.com/${slug}.html" target="_blank" style="color:#4facfe;">View Full Profile →</a></span>
-          </div>
-        `;
-        const popup = L.popup({ maxWidth: 320 })
-          .setLatLng([college.lat, college.lng])
-          .setContent(popupContent)
-          .openOn(map);
-        activeMarker = popup;
-      }, 1600);
-    }
+	        div.addEventListener('mouseenter', () => showCollegePopup(college));
+	        div.addEventListener('click', () => showCollegePopup(college));
+	        listEl.appendChild(div);
+	      });
+	      statsEl.innerText = activeCollege
+	        ? `${filtered.length} colleges match. ${activeCollege.name} selected.`
+	        : `${filtered.length} colleges shown. Hover over a pin for details.`;
+	    }
 
     // Search functionality
     searchEl.addEventListener('input', (e) => {
