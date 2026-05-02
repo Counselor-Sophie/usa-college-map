@@ -7,180 +7,514 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { display: flex; height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    
-    #sidebar {
-      width: 320px;
-      background: #1a1a2e;
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #10131f;
+      --panel: #151b2d;
+      --panel-2: #1f2a44;
+      --line: #33405f;
+      --muted: #9aa7bd;
+      --soft: #eef3f8;
+      --blue: #3b82f6;
+      --red: #e34848;
+      --green: #16a34a;
+      --gold: #d99a18;
+      --purple: #8b5cf6;
+    }
+
+    body {
+      display: flex;
+      height: 100vh;
       color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1422;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #sidebar {
+      width: 420px;
+      min-width: 360px;
+      background: var(--panel);
+      border-right: 1px solid var(--line);
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #333;
+      min-height: 0;
     }
-    
+
     #sidebar-header {
-      padding: 20px;
-      background: #16213e;
-      border-bottom: 1px solid #333;
+      padding: 18px;
+      background: #11182a;
+      border-bottom: 1px solid var(--line);
     }
-    
+
     #sidebar-header h1 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #4facfe;
+      color: #dce8ff;
+      font-size: 1.18rem;
+      font-weight: 720;
+      letter-spacing: 0;
+      margin-bottom: 12px;
     }
-    
+
     #search {
       width: 100%;
-      padding: 10px 15px;
-      margin-top: 15px;
-      background: #0f0f23;
-      border: 1px solid #333;
-      border-radius: 8px;
+      padding: 10px 12px;
+      background: #0b1020;
+      border: 1px solid var(--line);
+      border-radius: 7px;
       color: #fff;
-      font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.2s;
     }
-    
+
     #search:focus {
-      border-color: #4facfe;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
     }
-    
+
+    .control-stack {
+      display: grid;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #172035;
+    }
+
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #d5def0;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip, .small-button, .select-control {
+      border: 1px solid #405075;
+      border-radius: 999px;
+      background: #10182c;
+      color: #dfe9fb;
+      padding: 7px 10px;
+      font-size: 0.76rem;
+      line-height: 1;
+    }
+
+    .chip.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .small-button {
+      border-radius: 7px;
+      font-weight: 700;
+    }
+
+    .select-control {
+      width: 100%;
+      border-radius: 7px;
+      line-height: 1.25;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .panel-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .panel-tab {
+      border: 1px solid #405075;
+      border-radius: 7px;
+      background: #111a30;
+      color: #dfe9fb;
+      padding: 8px 10px;
+      font-size: 0.77rem;
+      font-weight: 700;
+    }
+
+    .panel-tab.active {
+      background: #263b66;
+      border-color: var(--blue);
+    }
+
+    #insight-panel {
+      color: #d7e2f2;
+      background: #10182c;
+      border: 1px solid #33415f;
+      border-radius: 8px;
+      min-height: 94px;
+      padding: 10px;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    #insight-panel strong {
+      color: #fff;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+    }
+
+    .comparison-table th, .comparison-table td {
+      border-bottom: 1px solid #2a3652;
+      padding: 6px 4px;
+      text-align: left;
+      vertical-align: top;
+    }
+
     #college-list {
       flex: 1;
       overflow-y: auto;
       padding: 10px;
+      min-height: 0;
     }
-    
+
     .college-item {
-      padding: 12px 15px;
+      padding: 12px;
       margin-bottom: 8px;
-      background: #16213e;
+      background: var(--panel-2);
+      border: 1px solid transparent;
       border-radius: 8px;
       cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid transparent;
+      transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
     }
-    
-    .college-item:hover {
-      background: #1f3460;
-      border-color: #4facfe;
+
+    .college-item:hover, .college-item.active {
+      background: #263a61;
+      border-color: var(--blue);
     }
-    
+
     .college-item.active {
-      background: #1f3460;
-      border-color: #4facfe;
-      box-shadow: 0 0 10px rgba(79, 172, 254, 0.2);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
     }
-    
+
+    .college-row-top {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     .college-name {
-      font-weight: 600;
-      font-size: 0.95rem;
+      color: #fff;
+      font-size: 0.94rem;
+      font-weight: 720;
+      line-height: 1.25;
       margin-bottom: 4px;
     }
-    
-    .college-location {
-      font-size: 0.8rem;
-      color: #888;
+
+    .college-location, .college-meta {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.35;
     }
-    
-	    #map {
-	      flex: 1;
-	    }
 
-	    .college-pin {
-	      width: 16px;
-	      height: 16px;
-	      background: #e73c3c;
-	      border: 2px solid #fff;
-	      border-radius: 50% 50% 50% 0;
-	      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-	      transform: rotate(-45deg);
-	      transform-origin: center;
-	      position: relative;
-	      cursor: pointer;
-	    }
+    .college-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
 
-	    .college-pin::after {
-	      content: "";
-	      position: absolute;
-	      width: 6px;
-	      height: 6px;
-	      top: 3px;
-	      left: 3px;
-	      background: #fff;
-	      border-radius: 50%;
-	    }
+    .icon-button {
+      min-width: 30px;
+      height: 28px;
+      border: 1px solid #43547a;
+      border-radius: 7px;
+      background: #121a2d;
+      color: #dfe9fb;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
 
-	    .college-pin.active {
-	      background: #4facfe;
-	      box-shadow: 0 0 0 5px rgba(79, 172, 254, 0.22), 0 2px 10px rgba(0, 0, 0, 0.35);
-	    }
+    .icon-button.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #111;
+    }
 
-	    .leaflet-popup-content-wrapper {
-	      border-radius: 8px;
-	    }
-    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #405075;
+      border-radius: 999px;
+      padding: 3px 7px;
+      color: #dfe9fb;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge.muted {
+      color: #aeb9cb;
+      border-color: #35435f;
+    }
+
+    #stats {
+      padding: 12px 18px;
+      background: #11182a;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: center;
+    }
+
+    #map-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .map-legend {
+      position: absolute;
+      right: 14px;
+      bottom: 18px;
+      z-index: 500;
+      max-width: 280px;
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid #d7dde8;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(16, 19, 31, 0.16);
+      color: var(--ink);
+      padding: 10px;
+      font-size: 0.76rem;
+    }
+
+    .legend-title {
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .legend-items {
+      display: grid;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+
+    .college-pin {
+      width: 17px;
+      height: 17px;
+      background: var(--red);
+      border: 2px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      cursor: pointer;
+      position: relative;
+      transform: rotate(-45deg);
+      transform-origin: center;
+    }
+
+    .college-pin::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      top: 3.5px;
+      left: 3.5px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    .college-pin.no-profile {
+      background: #fff;
+      border-color: var(--red);
+    }
+
+    .college-pin.no-profile::after {
+      background: var(--red);
+    }
+
+    .college-pin.active {
+      background: var(--blue) !important;
+      border-color: #fff;
+      box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.22), 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+    }
+
+    .leaflet-popup-content {
+      margin: 13px 14px;
+    }
+
     .popup-name {
-      font-weight: 600;
+      color: var(--ink);
       font-size: 1rem;
-      color: #1a1a2e;
+      font-weight: 800;
+      line-height: 1.25;
       margin-bottom: 4px;
     }
-    
+
     .popup-location {
-      font-size: 0.85rem;
-      color: #666;
+      color: #566174;
+      font-size: 0.84rem;
+      margin-bottom: 8px;
     }
-    
-    .popup-stats {
-      font-size: 0.8rem;
-      color: #1a1a2e;
+
+    .popup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 10px;
+      color: var(--ink);
+      font-size: 0.78rem;
       margin-top: 8px;
       padding-top: 8px;
-      border-top: 1px dashed #ccc;
+      border-top: 1px dashed #cbd4e1;
     }
-    
-	    .popup-stats span {
-	      display: block;
-	      margin-bottom: 4px;
-	    }
 
-	    .popup-action {
-	      color: #4facfe;
-	      display: block;
-	      font-size: 0.75rem;
-	      font-weight: 600;
-	      margin-top: 8px;
-	    }
-    
-    #stats {
-      padding: 15px 20px;
-      background: #16213e;
-      border-top: 1px solid #333;
-      font-size: 0.8rem;
-      color: #888;
-      text-align: center;
+    .popup-grid span {
+      display: block;
+    }
+
+    .popup-note {
+      color: #394355;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      margin-top: 8px;
+    }
+
+    .popup-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .popup-actions button {
+      border: 1px solid #cbd4e1;
+      border-radius: 7px;
+      background: #f8fafc;
+      color: #172033;
+      padding: 6px 8px;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        min-width: 0;
+        height: 52vh;
+        overflow-y: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      #college-list {
+        flex: none;
+        overflow: visible;
+      }
+
+      #stats {
+        position: sticky;
+        bottom: 0;
+      }
+
+      #map-wrap {
+        min-height: 48vh;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .map-legend {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="sidebar">
+  <aside id="sidebar">
     <div id="sidebar-header">
-      <h1>🎓 USA College Map</h1>
-      <input type="text" id="search" placeholder="Search colleges...">
+      <h1>USA College Map</h1>
+      <input type="text" id="search" placeholder="Search colleges, cities, regions...">
     </div>
+
+    <section class="control-stack">
+      <div>
+        <div class="control-label"><span>Region</span><button class="small-button" id="reset-filters">Reset</button></div>
+        <div class="segmented" id="region-filters"></div>
+      </div>
+
+      <div>
+        <div class="control-label"><span>School Type</span></div>
+        <div class="segmented" id="type-filters"></div>
+      </div>
+
+      <div class="two-col">
+        <label>
+          <div class="control-label"><span>Climate Layer</span></div>
+          <select class="select-control" id="climate-filter"></select>
+        </label>
+        <label>
+          <div class="control-label"><span>Known Place</span></div>
+          <select class="select-control" id="anchor-select"></select>
+        </label>
+      </div>
+
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-panel="shortlist">Shortlist</button>
+        <button class="panel-tab" data-panel="compare">Compare</button>
+        <button class="panel-tab" data-panel="travel">Travel</button>
+      </div>
+      <div id="insight-panel"></div>
+    </section>
+
     <div id="college-list"></div>
-	    <div id="stats">Hover over pins for details</div>
-  </div>
-  <div id="map"></div>
+    <div id="stats">Hover over pins for details. Click available pins for profiles.</div>
+  </aside>
+
+  <main id="map-wrap">
+    <div id="map"></div>
+    <div class="map-legend" id="map-legend"></div>
+  </main>
 
   <script>
-    // College data with coordinates and real acceptance rates from collegefit.counselorjay.com
     const colleges = [
-      // Ivy League & Top Tier
       { name: "Harvard University", city: "Cambridge, MA", lat: 42.3770, lng: -71.1167, stats: { acceptance: "4%", sat: "1480-1590", act: "33-36", enrollment: "7,103" } },
       { name: "Stanford University", city: "Stanford, CA", lat: 37.4275, lng: -122.1697, stats: { acceptance: "3.9%", sat: "1520-1580", act: "34-36", enrollment: "7,645" } },
       { name: "MIT", city: "Cambridge, MA", lat: 42.3601, lng: -71.0942, stats: { acceptance: "<10%", sat: "1520-1580", act: "34-36", enrollment: "4,657" } },
@@ -199,14 +533,12 @@
       { name: "Vanderbilt University", city: "Nashville, TN", lat: 36.1447, lng: -86.8027, stats: { acceptance: "~6%", sat: "1470-1560", act: "33-35", enrollment: "6,886" } },
       { name: "University of Notre Dame", city: "Notre Dame, IN", lat: 41.7055, lng: -86.2353, stats: { acceptance: "9%", sat: "1450-1550", act: "33-35", enrollment: "8,874" } },
       { name: "Georgetown University", city: "Washington, DC", lat: 38.9076, lng: -77.0723, stats: { acceptance: "~13%", sat: "1410-1550", act: "31-34", enrollment: "7,459" } },
-      // UC Schools
       { name: "UC Berkeley", city: "Berkeley, CA", lat: 37.8716, lng: -122.2727, stats: { acceptance: "~11%" } },
       { name: "UCLA", city: "Los Angeles, CA", lat: 34.0689, lng: -118.4452, stats: { acceptance: "~3%" } },
       { name: "UC San Diego", city: "La Jolla, CA", lat: 32.8801, lng: -117.2379, stats: { acceptance: "~24%" } },
       { name: "UC Santa Barbara", city: "Santa Barbara, CA", lat: 34.4140, lng: -119.8489, stats: { acceptance: "~26%" } },
       { name: "UC Davis", city: "Davis, CA", lat: 38.5816, lng: -121.4944, stats: { acceptance: "~37%" } },
       { name: "UC Irvine", city: "Irvine, CA", lat: 33.6405, lng: -117.8443, stats: { acceptance: "~21%" } },
-      // Other Top Public & Private
       { name: "University of Michigan", city: "Ann Arbor, MI", lat: 42.2780, lng: -83.7382, stats: { acceptance: "16.4%" } },
       { name: "University of Virginia", city: "Charlottesville, VA", lat: 38.0336, lng: -78.5080, stats: { acceptance: "~23%" } },
       { name: "Carnegie Mellon University", city: "Pittsburgh, PA", lat: 40.4443, lng: -79.9608, stats: { acceptance: "~13%" } },
@@ -221,7 +553,6 @@
       { name: "Ohio State University", city: "Columbus, OH", lat: 40.0067, lng: -83.0305, stats: { acceptance: "~51%" } },
       { name: "University of Wisconsin", city: "Madison, WI", lat: 43.0766, lng: -89.4125, stats: { acceptance: "~51%" } },
       { name: "University of Arizona", city: "Tucson, AZ", lat: 32.2319, lng: -110.9501, stats: { acceptance: "~87%" } },
-      // Other Schools
       { name: "Boston University", city: "Boston, MA", lat: 42.3505, lng: -71.1054, stats: { acceptance: "~11%" } },
       { name: "Tulane University", city: "New Orleans, LA", lat: 29.9399, lng: -90.1209, stats: { acceptance: "~11%" } },
       { name: "University of Miami", city: "Miami, FL", lat: 25.7181, lng: -80.2793, stats: { acceptance: "~19%" } },
@@ -238,209 +569,703 @@
       { name: "University of Colorado Boulder", city: "Boulder, CO", lat: 40.0076, lng: -105.2659, stats: { acceptance: "~79%" } },
       { name: "University of Utah", city: "Salt Lake City, UT", lat: 40.7649, lng: -111.8421, stats: { acceptance: "~89%" } },
       { name: "Brigham Young University", city: "Provo, UT", lat: 40.2523, lng: -111.6493, stats: { acceptance: "~67%" } },
-      // Hawaii Colleges
       { name: "University of Hawaii at Manoa", city: "Honolulu, HI", lat: 21.3069, lng: -157.8212, stats: { acceptance: "~64%" } },
       { name: "Hawaii Pacific University", city: "Honolulu, HI", lat: 21.3093, lng: -157.8623, stats: { acceptance: "~57%" } },
-      // Alaska Colleges
       { name: "University of Alaska Anchorage", city: "Anchorage, AK", lat: 61.1922, lng: -149.8924, stats: { acceptance: "~68%" } },
       { name: "University of Alaska Fairbanks", city: "Fairbanks, AK", lat: 64.8438, lng: -147.7339, stats: { acceptance: "~56%" } }
     ];
 
-	    // Start at a national view so students can compare regions before zooming in.
-	    const usaView = {
-	      center: [39.8283, -113.0],
-	      zoom: 3
-	    };
+    const profilePaths = {
+      "Harvard University": "harvard.html",
+      "Stanford University": "stanford.html",
+      "MIT": "mit.html",
+      "Yale University": "yale.html",
+      "Princeton University": "princeton.html",
+      "Columbia University": "columbia.html",
+      "University of Pennsylvania": "upenn.html",
+      "Brown University": "brown.html",
+      "Duke University": "duke.html",
+      "Northwestern University": "northwestern.html",
+      "University of Chicago": "uchicago.html",
+      "Caltech": "caltech.html",
+      "Johns Hopkins University": "johns-hopkins.html",
+      "Cornell University": "cornell.html",
+      "Rice University": "rice.html",
+      "Vanderbilt University": "vanderbilt.html",
+      "University of Notre Dame": "notre-dame.html",
+      "Georgetown University": "georgetown.html",
+      "UC Berkeley": "uc-berkeley.html",
+      "UCLA": "ucla.html",
+      "UC San Diego": "uc-san-diego.html",
+      "UC Santa Barbara": "uc-santa-barbara.html",
+      "UC Davis": "uc-davis.html",
+      "UC Irvine": "uc-irvine.html",
+      "University of Michigan": "umich.html",
+      "University of Virginia": "uva.html",
+      "Carnegie Mellon University": "carnegie-mellon.html",
+      "Emory University": "emory.html",
+      "USC": "usc.html",
+      "NYU": "nyu.html",
+      "University of North Carolina": "unc-chapel-hill.html",
+      "University of Georgia": "uga.html",
+      "University of Texas at Austin": "ut-austin.html",
+      "University of Florida": "uf.html",
+      "University of Washington": "uw.html",
+      "Ohio State University": "ohio-state.html",
+      "University of Wisconsin": "uw-madison.html",
+      "Boston University": "boston-university.html",
+      "Boston College": "boston-college.html",
+      "Tufts University": "tufts.html",
+      "Wake Forest University": "wake-forest.html",
+      "University of Rochester": "rochester.html",
+      "Lehigh University": "lehigh.html"
+    };
 
-	    const map = L.map('map', {
-	      zoomControl: true,
-	      dragging: true,
-	      scrollWheelZoom: true,
-	      doubleClickZoom: true,
-	      boxZoom: true,
-	      keyboard: true,
-	      touchZoom: true,
-	      minZoom: usaView.zoom,
-	      maxZoom: 19
-	    }).setView(usaView.center, usaView.zoom);
-    
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    const airports = {
+      CA: "LAX, SFO, SJC, SAN or regional airports",
+      MA: "BOS",
+      NY: "JFK, LGA, EWR or ROC",
+      NJ: "EWR or PHL",
+      CT: "BDL, JFK, LGA or EWR",
+      PA: "PHL or PIT",
+      RI: "PVD or BOS",
+      NC: "RDU or CLT",
+      IL: "ORD or MDW",
+      MD: "BWI",
+      TX: "IAH, DFW or AUS",
+      TN: "BNA",
+      IN: "SBN or ORD",
+      DC: "DCA, IAD or BWI",
+      MI: "DTW",
+      VA: "CHO, DCA or IAD",
+      GA: "ATL",
+      FL: "MIA, FLL, MCO or JAX",
+      WA: "SEA",
+      OH: "CMH or CLE",
+      WI: "MSN or MKE",
+      AZ: "TUS or PHX",
+      LA: "MSY",
+      CO: "DEN",
+      UT: "SLC",
+      HI: "HNL",
+      AK: "ANC or FAI"
+    };
+
+    const anchors = {
+      "": null,
+      "Los Angeles": { lat: 34.0522, lng: -118.2437 },
+      "San Francisco": { lat: 37.7749, lng: -122.4194 },
+      "New York City": { lat: 40.7128, lng: -74.0060 },
+      "Boston": { lat: 42.3601, lng: -71.0589 },
+      "Chicago": { lat: 41.8781, lng: -87.6298 },
+      "Seattle": { lat: 47.6062, lng: -122.3321 },
+      "Dallas": { lat: 32.7767, lng: -96.7970 },
+      "Atlanta": { lat: 33.7490, lng: -84.3880 },
+      "Miami": { lat: 25.7617, lng: -80.1918 },
+      "Honolulu": { lat: 21.3069, lng: -157.8583 }
+    };
+
+    const regionOptions = [
+      ["all", "All"],
+      ["West", "West"],
+      ["Northeast", "Northeast"],
+      ["Midwest", "Midwest"],
+      ["South", "South"],
+      ["California", "California"],
+      ["Texas", "Texas"]
+    ];
+
+    const typeOptions = [
+      ["all", "All"],
+      ["Public", "Public"],
+      ["Private", "Private"],
+      ["UC", "UC"],
+      ["Research", "Research"],
+      ["Profile", "Profile Ready"]
+    ];
+
+    const climateOptions = [
+      ["all", "All climates"],
+      ["Mild Coastal", "Mild coastal"],
+      ["Cold Winters", "Cold winters"],
+      ["Hot or Humid", "Hot or humid"],
+      ["Dry Mountain", "Dry mountain"],
+      ["Island", "Island"],
+      ["Subarctic", "Subarctic"]
+    ];
+
+    const climateColors = {
+      "Mild Coastal": "#2563eb",
+      "Cold Winters": "#7c3aed",
+      "Hot or Humid": "#dc2626",
+      "Dry Mountain": "#d97706",
+      "Island": "#0891b2",
+      "Subarctic": "#475569",
+      "Default": "#e34848"
+    };
+
+    const stateRegions = {
+      CA: "West", WA: "West", OR: "West", HI: "West", AK: "West", CO: "West", UT: "West", AZ: "West",
+      MA: "Northeast", NY: "Northeast", NJ: "Northeast", CT: "Northeast", PA: "Northeast", RI: "Northeast", MD: "Northeast", DC: "Northeast",
+      IL: "Midwest", IN: "Midwest", MI: "Midwest", OH: "Midwest", WI: "Midwest",
+      NC: "South", GA: "South", TX: "South", FL: "South", TN: "South", LA: "South", VA: "South"
+    };
+
+    const usaView = { center: [39.8283, -113.0], zoom: 3 };
+    const map = L.map("map", {
+      zoomControl: true,
+      dragging: true,
+      scrollWheelZoom: true,
+      doubleClickZoom: true,
+      boxZoom: true,
+      keyboard: true,
+      touchZoom: true,
+      minZoom: usaView.zoom,
+      maxZoom: 19
+    }).setView(usaView.center, usaView.zoom);
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-      subdomains: 'abcd',
+      subdomains: "abcd",
       maxZoom: 19
     }).addTo(map);
 
-	    const markers = {};
-	    const listEl = document.getElementById('college-list');
-	    const searchEl = document.getElementById('search');
-	    const statsEl = document.getElementById('stats');
-	    let activeCollege = null;
+    const markers = {};
+    let anchorMarker = null;
+    let distanceLine = null;
+    let activeCollege = null;
+    let activePanel = "shortlist";
 
-	    const profilePaths = {
-	      "Harvard University": "harvard.html",
-	      "Stanford University": "stanford.html",
-	      "MIT": "mit.html",
-	      "Yale University": "yale.html",
-	      "Princeton University": "princeton.html",
-	      "Columbia University": "columbia.html",
-	      "University of Pennsylvania": "upenn.html",
-	      "Brown University": "brown.html",
-	      "Duke University": "duke.html",
-	      "Northwestern University": "northwestern.html",
-	      "University of Chicago": "uchicago.html",
-	      "Caltech": "caltech.html",
-	      "Johns Hopkins University": "johns-hopkins.html",
-	      "Cornell University": "cornell.html",
-	      "Rice University": "rice.html",
-	      "Vanderbilt University": "vanderbilt.html",
-	      "University of Notre Dame": "notre-dame.html",
-	      "Georgetown University": "georgetown.html",
-	      "UC Berkeley": "uc-berkeley.html",
-	      "UCLA": "ucla.html",
-	      "UC San Diego": "uc-san-diego.html",
-	      "UC Santa Barbara": "uc-santa-barbara.html",
-	      "UC Davis": "uc-davis.html",
-	      "UC Irvine": "uc-irvine.html",
-	      "University of Michigan": "umich.html",
-	      "University of Virginia": "uva.html",
-	      "Carnegie Mellon University": "carnegie-mellon.html",
-	      "Emory University": "emory.html",
-	      "USC": "usc.html",
-	      "NYU": "nyu.html",
-	      "University of North Carolina": "unc-chapel-hill.html",
-	      "University of Georgia": "uga.html",
-	      "University of Texas at Austin": "ut-austin.html",
-	      "University of Florida": "uf.html",
-	      "University of Washington": "uw.html",
-	      "Ohio State University": "ohio-state.html",
-	      "University of Wisconsin": "uw-madison.html",
-	      "Boston University": "boston-university.html",
-	      "Boston College": "boston-college.html",
-	      "Tufts University": "tufts.html",
-	      "Wake Forest University": "wake-forest.html",
-	      "University of Rochester": "rochester.html",
-	      "Lehigh University": "lehigh.html"
-	    };
+    const state = {
+      search: "",
+      region: "all",
+      type: "all",
+      climate: "all",
+      anchor: "",
+      shortlist: readStoredList("collegeMapShortlist"),
+      compare: readStoredList("collegeMapCompare").slice(0, 5)
+    };
 
-	    function getProfileUrl(college) {
-	      const path = profilePaths[college.name];
-	      return path ? `https://collegefit.counselorjay.com/${path}` : null;
-	    }
+    const el = {
+      search: document.getElementById("search"),
+      regionFilters: document.getElementById("region-filters"),
+      typeFilters: document.getElementById("type-filters"),
+      climateFilter: document.getElementById("climate-filter"),
+      anchorSelect: document.getElementById("anchor-select"),
+      insightPanel: document.getElementById("insight-panel"),
+      collegeList: document.getElementById("college-list"),
+      stats: document.getElementById("stats"),
+      legend: document.getElementById("map-legend"),
+      resetFilters: document.getElementById("reset-filters")
+    };
 
-	    function buildPopupContent(college) {
-	      const stats = college.stats;
-	      let statsHtml = `<span><b>Acceptance:</b> ${stats.acceptance || 'N/A'}</span>`;
-	      if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
-	      if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
-	      if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
-	      const action = getProfileUrl(college)
-	        ? "Click pin for full profile"
-	        : "Profile coming soon";
+    function readStoredList(key) {
+      try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+      } catch {
+        return [];
+      }
+    }
 
-	      return `
-	        <div class="popup-name">${college.name}</div>
-	        <div class="popup-location">${college.city}</div>
-	        <div class="popup-stats">
-	          ${statsHtml}
-	          <span class="popup-action">${action}</span>
-	        </div>
-	      `;
-	    }
+    function storeLists() {
+      localStorage.setItem("collegeMapShortlist", JSON.stringify(state.shortlist));
+      localStorage.setItem("collegeMapCompare", JSON.stringify(state.compare));
+    }
 
-	    function setActiveCollege(college) {
-	      activeCollege = college;
+    function getStateCode(college) {
+      return college.city.split(",").pop().trim();
+    }
 
-	      document.querySelectorAll('.college-item').forEach(itemEl => {
-	        const itemName = itemEl.querySelector('.college-name').innerText;
-	        itemEl.classList.toggle('active', itemName === college.name);
-	      });
+    function getRegion(college) {
+      const stateCode = getStateCode(college);
+      if (stateCode === "CA") return "California";
+      if (stateCode === "TX") return "Texas";
+      return stateRegions[stateCode] || "Other";
+    }
 
-	      Object.values(markers).forEach(marker => {
-	        const markerEl = marker.getElement();
-	        const pinEl = markerEl && markerEl.querySelector('.college-pin');
-	        if (pinEl) pinEl.classList.remove('active');
-	      });
+    function getBroadRegion(college) {
+      return stateRegions[getStateCode(college)] || "Other";
+    }
 
-	      const marker = markers[college.name];
-	      const markerEl = marker && marker.getElement();
-	      const pinEl = markerEl && markerEl.querySelector('.college-pin');
-	      if (pinEl) pinEl.classList.add('active');
-	    }
+    function isUcSchool(college) {
+      return college.name.startsWith("UC ") || college.name === "UCLA";
+    }
 
-	    function showCollegePopup(college) {
-	      setActiveCollege(college);
-	      markers[college.name].openPopup();
-	      statsEl.innerText = `${college.name} is in ${college.city}.`;
-	    }
+    function getType(college) {
+      if (isUcSchool(college)) return "UC";
+      if (/University of|Ohio State|Brigham Young|Hawaii Pacific|Case Western|George Washington|Northeastern|Villanova|Pepperdine|Tulane|Boston College|Boston University|Lehigh/.test(college.name)) {
+        if (/University of California|University of Michigan|University of Virginia|University of North Carolina|University of Georgia|University of Texas|University of Florida|University of Washington|Ohio State|University of Wisconsin|University of Arizona|University of Colorado|University of Utah|University of Hawaii|University of Alaska/.test(college.name)) return "Public";
+      }
+      return "Private";
+    }
 
-	    function openCollegeProfile(college) {
-	      const profileUrl = getProfileUrl(college);
-	      if (profileUrl) {
-	        window.open(profileUrl, '_blank', 'noopener');
-	      } else {
-	        showCollegePopup(college);
-	        statsEl.innerText = `${college.name} profile is coming soon.`;
-	      }
-	    }
+    function getCategory(college) {
+      if (isUcSchool(college)) return "UC Public";
+      return getType(college) === "Public" ? "Public Research" : "Private Research";
+    }
 
-	    const pinIcon = L.divIcon({
-	      className: '',
-	      html: '<div class="college-pin"></div>',
-	      iconSize: [18, 24],
-	      iconAnchor: [9, 23],
-	      popupAnchor: [0, -22]
-	    });
+    function getClimate(college) {
+      const stateCode = getStateCode(college);
+      if (["CA", "WA"].includes(stateCode)) return "Mild Coastal";
+      if (["MA", "NY", "NJ", "CT", "PA", "RI", "IL", "IN", "MI", "OH", "WI", "MD", "DC"].includes(stateCode)) return "Cold Winters";
+      if (["TX", "FL", "GA", "NC", "TN", "LA", "VA"].includes(stateCode)) return "Hot or Humid";
+      if (["AZ", "CO", "UT"].includes(stateCode)) return "Dry Mountain";
+      if (stateCode === "HI") return "Island";
+      if (stateCode === "AK") return "Subarctic";
+      return "Default";
+    }
 
-	    colleges.forEach(college => {
-	      const marker = L.marker([college.lat, college.lng], {
-	        icon: pinIcon,
-	        title: college.name,
-	        riseOnHover: true
-	      }).addTo(map);
+    function getSetting(college) {
+      if (/New York|Boston|Chicago|Philadelphia|Washington|Los Angeles|Seattle|Miami|Atlanta|Houston|Austin|Cleveland|Columbus|Rochester|Honolulu|Anchorage/.test(college.city)) return "Urban";
+      if (/Stanford|Princeton|Ithaca|Notre Dame|Charlottesville|Chapel Hill|Athens|Gainesville|Madison|Tucson|Boulder|Provo|Fairbanks|Davis/.test(college.city)) return "College town";
+      return "Suburban";
+    }
 
-	      marker.bindPopup(buildPopupContent(college), {
-	        maxWidth: 260,
-	        closeButton: false,
-	        autoPan: false
-	      });
+    function getVibe(college) {
+      const type = getType(college);
+      const setting = getSetting(college);
+      if (isUcSchool(college)) return "Large public research, California access";
+      if (setting === "Urban") return `${type}, city-connected campus`;
+      if (setting === "College town") return `${type}, classic campus environment`;
+      return `${type}, residential/suburban access`;
+    }
 
-	      marker.on('mouseover', () => showCollegePopup(college));
-	      marker.on('focus', () => showCollegePopup(college));
-	      marker.on('click', () => openCollegeProfile(college));
-	      markers[college.name] = marker;
-	    });
+    function getBestFor(college) {
+      const region = getBroadRegion(college);
+      if (isUcSchool(college)) return "Students comparing California public options";
+      if (region === "Northeast") return "Students wanting dense East Coast access";
+      if (region === "West") return "Students weighing climate, tech and Pacific access";
+      if (region === "Midwest") return "Students open to strong campus towns and value";
+      if (region === "South") return "Students considering warmer weather and major airports";
+      return "Students building geographic awareness";
+    }
 
-    // Render college list
-    function renderList(filter = '') {
-      listEl.innerHTML = '';
-      const filtered = colleges.filter(c => 
-        c.name.toLowerCase().includes(filter.toLowerCase()) ||
-        c.city.toLowerCase().includes(filter.toLowerCase())
-      );
-      
-	      filtered.forEach(college => {
-	        const div = document.createElement('div');
-	        div.className = `college-item${activeCollege && activeCollege.name === college.name ? ' active' : ''}`;
-        div.innerHTML = `
-          <div class="college-name">${college.name}</div>
-          <div class="college-location">${college.city}</div>
+    function getProfileUrl(college) {
+      const path = profilePaths[college.name];
+      return path ? `https://collegefit.counselorjay.com/${path}` : null;
+    }
+
+    function enrichCollege(college) {
+      const stateCode = getStateCode(college);
+      return {
+        ...college,
+        stateCode,
+        region: getRegion(college),
+        broadRegion: getBroadRegion(college),
+        type: getType(college),
+        category: getCategory(college),
+        climate: getClimate(college),
+        setting: getSetting(college),
+        airport: airports[stateCode] || "Regional airport",
+        vibe: getVibe(college),
+        bestFor: getBestFor(college),
+        profileUrl: getProfileUrl(college),
+        hasProfile: Boolean(getProfileUrl(college))
+      };
+    }
+
+    const schools = colleges.map(enrichCollege);
+
+    function haversineMiles(a, b) {
+      const radius = 3958.8;
+      const toRad = deg => deg * Math.PI / 180;
+      const dLat = toRad(b.lat - a.lat);
+      const dLng = toRad(b.lng - a.lng);
+      const lat1 = toRad(a.lat);
+      const lat2 = toRad(b.lat);
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+      return Math.round(2 * radius * Math.asin(Math.sqrt(h)));
+    }
+
+    function driveTimeText(miles) {
+      if (miles < 35) return "local";
+      if (miles < 180) return `${Math.round(miles / 55)} to ${Math.round(miles / 55) + 1} hr drive`;
+      return "flight likely";
+    }
+
+    function getAnchorDistance(college) {
+      const anchor = anchors[state.anchor];
+      return anchor ? haversineMiles(anchor, college) : null;
+    }
+
+    function escapeAttr(value) {
+      return value.replace(/"/g, "&quot;");
+    }
+
+    function buildPinHtml(college) {
+      const color = state.climate === "all" ? climateColors.Default : climateColors[college.climate] || climateColors.Default;
+      const classes = `college-pin${college.hasProfile ? "" : " no-profile"}`;
+      return `<div class="${classes}" style="background:${college.hasProfile ? color : "#fff"};border-color:${college.hasProfile ? "#fff" : color};"></div>`;
+    }
+
+    function createIcon(college) {
+      return L.divIcon({
+        className: "",
+        html: buildPinHtml(college),
+        iconSize: [19, 25],
+        iconAnchor: [9, 24],
+        popupAnchor: [0, -23]
+      });
+    }
+
+    function buildPopupContent(college) {
+      const stats = college.stats;
+      const distance = getAnchorDistance(college);
+      const travelLine = distance ? `<div class="popup-note"><strong>${distance} mi</strong> from ${state.anchor}. ${driveTimeText(distance)}.</div>` : "";
+      const profileLabel = college.hasProfile ? "Open profile" : "Profile coming soon";
+      const profileDisabled = college.hasProfile ? "" : "disabled";
+
+      return `
+        <div class="popup-name">${college.name}</div>
+        <div class="popup-location">${college.city} · ${college.region} · ${college.setting}</div>
+        <div class="popup-grid">
+          <span><strong>Acceptance</strong><br>${stats.acceptance || "N/A"}</span>
+          <span><strong>Type</strong><br>${college.category}</span>
+          <span><strong>Climate</strong><br>${college.climate}</span>
+          <span><strong>Airport</strong><br>${college.airport}</span>
+        </div>
+        <div class="popup-note">${college.vibe}. ${college.bestFor}.</div>
+        ${travelLine}
+        <div class="popup-actions">
+          <button data-action="profile" data-name="${escapeAttr(college.name)}" ${profileDisabled}>${profileLabel}</button>
+          <button data-action="shortlist" data-name="${escapeAttr(college.name)}">${state.shortlist.includes(college.name) ? "Saved" : "Save"}</button>
+          <button data-action="compare" data-name="${escapeAttr(college.name)}">${state.compare.includes(college.name) ? "Comparing" : "Compare"}</button>
+        </div>
+      `;
+    }
+
+    function createMarker(college) {
+      const marker = L.marker([college.lat, college.lng], {
+        icon: createIcon(college),
+        title: college.name,
+        riseOnHover: true
+      }).addTo(map);
+
+      marker.bindPopup(buildPopupContent(college), {
+        maxWidth: 330,
+        closeButton: false,
+        autoPan: false
+      });
+
+      marker.on("mouseover", () => showCollegePopup(college.name));
+      marker.on("focus", () => showCollegePopup(college.name));
+      marker.on("click", () => openCollegeProfile(college.name));
+      markers[college.name] = marker;
+    }
+
+    function getSchool(name) {
+      return schools.find(school => school.name === name);
+    }
+
+    function isVisible(college) {
+      const term = state.search.trim().toLowerCase();
+      const matchesSearch = !term ||
+        college.name.toLowerCase().includes(term) ||
+        college.city.toLowerCase().includes(term) ||
+        college.region.toLowerCase().includes(term) ||
+        college.climate.toLowerCase().includes(term);
+      const matchesRegion = state.region === "all" || college.region === state.region || college.broadRegion === state.region;
+      const matchesType = state.type === "all" ||
+        college.type === state.type ||
+        college.category.includes(state.type) ||
+        (state.type === "Profile" && college.hasProfile);
+      const matchesClimate = state.climate === "all" || college.climate === state.climate;
+      return matchesSearch && matchesRegion && matchesType && matchesClimate;
+    }
+
+    function getFilteredSchools() {
+      return schools.filter(isVisible);
+    }
+
+    function setActiveCollege(name) {
+      activeCollege = getSchool(name);
+
+      document.querySelectorAll(".college-item").forEach(itemEl => {
+        itemEl.classList.toggle("active", itemEl.dataset.name === name);
+      });
+
+      Object.values(markers).forEach(marker => {
+        const pinEl = marker.getElement()?.querySelector(".college-pin");
+        if (pinEl) pinEl.classList.remove("active");
+      });
+
+      const pinEl = markers[name]?.getElement()?.querySelector(".college-pin");
+      if (pinEl) pinEl.classList.add("active");
+      drawDistanceLine();
+      renderInsightPanel();
+    }
+
+    function showCollegePopup(name) {
+      const college = getSchool(name);
+      if (!college) return;
+      setActiveCollege(name);
+      markers[name].setPopupContent(buildPopupContent(college));
+      markers[name].openPopup();
+      const distance = getAnchorDistance(college);
+      el.stats.innerText = distance
+        ? `${college.name} is ${distance} miles from ${state.anchor}.`
+        : `${college.name} is in ${college.city}.`;
+    }
+
+    function openCollegeProfile(name) {
+      const college = getSchool(name);
+      if (!college) return;
+      if (college.profileUrl) {
+        window.open(college.profileUrl, "_blank", "noopener");
+      } else {
+        showCollegePopup(name);
+        el.stats.innerText = `${college.name} profile is coming soon.`;
+      }
+    }
+
+    function toggleShortlist(name) {
+      state.shortlist = state.shortlist.includes(name)
+        ? state.shortlist.filter(item => item !== name)
+        : [...state.shortlist, name];
+      storeLists();
+      renderAll();
+    }
+
+    function toggleCompare(name) {
+      if (state.compare.includes(name)) {
+        state.compare = state.compare.filter(item => item !== name);
+      } else if (state.compare.length < 5) {
+        state.compare = [...state.compare, name];
+      } else {
+        el.stats.innerText = "Compare mode holds up to 5 schools.";
+      }
+      storeLists();
+      activePanel = "compare";
+      renderAll();
+    }
+
+    function renderFilterButtons(target, options, key) {
+      target.innerHTML = options.map(([value, label]) => (
+        `<button class="chip${state[key] === value ? " active" : ""}" data-filter="${key}" data-value="${value}">${label}</button>`
+      )).join("");
+    }
+
+    function renderSelects() {
+      el.climateFilter.innerHTML = climateOptions.map(([value, label]) => (
+        `<option value="${value}"${state.climate === value ? " selected" : ""}>${label}</option>`
+      )).join("");
+      el.anchorSelect.innerHTML = Object.keys(anchors).map(name => {
+        const label = name || "None";
+        return `<option value="${name}"${state.anchor === name ? " selected" : ""}>${label}</option>`;
+      }).join("");
+    }
+
+    function renderList() {
+      const filtered = getFilteredSchools();
+      el.collegeList.innerHTML = filtered.map(college => {
+        const distance = getAnchorDistance(college);
+        const distanceText = distance ? ` · ${distance} mi from ${state.anchor}` : "";
+        return `
+          <article class="college-item${activeCollege?.name === college.name ? " active" : ""}" data-name="${escapeAttr(college.name)}">
+            <div class="college-row-top">
+              <div>
+                <div class="college-name">${college.name}</div>
+                <div class="college-location">${college.city} · ${college.region}${distanceText}</div>
+              </div>
+              <span class="badge${college.hasProfile ? "" : " muted"}">${college.hasProfile ? "Profile" : "Soon"}</span>
+            </div>
+            <div class="college-meta">${college.category} · ${college.setting} · ${college.climate}</div>
+            <div class="college-actions">
+              <button class="icon-button${state.shortlist.includes(college.name) ? " active" : ""}" title="Save to shortlist" data-action="shortlist" data-name="${escapeAttr(college.name)}">S</button>
+              <button class="icon-button${state.compare.includes(college.name) ? " active" : ""}" title="Add to compare" data-action="compare" data-name="${escapeAttr(college.name)}">C</button>
+              <button class="icon-button" title="${college.hasProfile ? "Open profile" : "Profile coming soon"}" data-action="profile" data-name="${escapeAttr(college.name)}">P</button>
+            </div>
+          </article>
         `;
-	        div.addEventListener('mouseenter', () => showCollegePopup(college));
-	        div.addEventListener('click', () => showCollegePopup(college));
-	        listEl.appendChild(div);
-	      });
-	      statsEl.innerText = activeCollege
-	        ? `${filtered.length} colleges match. ${activeCollege.name} selected.`
-	        : `${filtered.length} colleges shown. Hover over a pin for details.`;
-	    }
+      }).join("");
+      el.stats.innerText = `${filtered.length} colleges shown. ${state.shortlist.length} saved. ${state.compare.length} comparing.`;
+    }
 
-    // Search functionality
-    searchEl.addEventListener('input', (e) => {
-      renderList(e.target.value);
+    function renderMarkers() {
+      const visibleNames = new Set(getFilteredSchools().map(college => college.name));
+      schools.forEach(college => {
+        const marker = markers[college.name];
+        marker.setIcon(createIcon(college));
+        marker.setPopupContent(buildPopupContent(college));
+        if (visibleNames.has(college.name)) {
+          if (!map.hasLayer(marker)) marker.addTo(map);
+        } else if (map.hasLayer(marker)) {
+          marker.remove();
+        }
+      });
+      if (activeCollege) setActiveCollege(activeCollege.name);
+    }
+
+    function renderLegend() {
+      const profileLine = '<div><span class="legend-dot" style="background:#fff;border:2px solid #e34848"></span>Outlined pins: profile coming soon</div>';
+      const climateLines = state.climate === "all"
+        ? '<div><span class="legend-dot" style="background:#e34848"></span>Filled pins: CollegeFit profile ready</div>'
+        : Object.entries(climateColors)
+          .filter(([name]) => name !== "Default")
+          .map(([name, color]) => `<div><span class="legend-dot" style="background:${color}"></span>${name}</div>`)
+          .join("");
+      el.legend.innerHTML = `
+        <div class="legend-title">${state.climate === "all" ? "Profile availability" : "Climate layer"}</div>
+        <div class="legend-items">${climateLines}${profileLine}</div>
+      `;
+    }
+
+    function renderInsightPanel() {
+      document.querySelectorAll(".panel-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.panel === activePanel);
+      });
+
+      if (activePanel === "shortlist") {
+        if (!state.shortlist.length) {
+          el.insightPanel.innerHTML = "<strong>Shortlist</strong><br>Save schools with the S button. Your list stays in this browser.";
+          return;
+        }
+        el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>${state.shortlist.map(name => {
+          const school = getSchool(name);
+          return `${school.name} (${school.region})`;
+        }).join("<br>")}`;
+        return;
+      }
+
+      if (activePanel === "compare") {
+        if (!state.compare.length) {
+          el.insightPanel.innerHTML = "<strong>Compare</strong><br>Add up to 5 schools with the C button.";
+          return;
+        }
+        el.insightPanel.innerHTML = `
+          <table class="comparison-table">
+            <thead><tr><th>School</th><th>Region</th><th>Type</th><th>Climate</th><th>Admit</th></tr></thead>
+            <tbody>${state.compare.map(name => {
+              const school = getSchool(name);
+              return `<tr><td>${school.name}</td><td>${school.region}</td><td>${school.type}</td><td>${school.climate}</td><td>${school.stats.acceptance || "N/A"}</td></tr>`;
+            }).join("")}</tbody>
+          </table>
+        `;
+        return;
+      }
+
+      if (!state.anchor) {
+        el.insightPanel.innerHTML = "<strong>Travel</strong><br>Choose a known place to estimate distance from familiar US cities.";
+        return;
+      }
+
+      const sorted = getFilteredSchools()
+        .map(school => ({ school, distance: getAnchorDistance(school) }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 5);
+      el.insightPanel.innerHTML = `<strong>Closest to ${state.anchor}</strong><br>${sorted.map(item => (
+        `${item.school.name}: ${item.distance} mi, ${driveTimeText(item.distance)}`
+      )).join("<br>")}`;
+    }
+
+    function drawDistanceLine() {
+      if (distanceLine) {
+        distanceLine.remove();
+        distanceLine = null;
+      }
+      if (!state.anchor || !activeCollege) return;
+      const anchor = anchors[state.anchor];
+      distanceLine = L.polyline([[anchor.lat, anchor.lng], [activeCollege.lat, activeCollege.lng]], {
+        color: "#2563eb",
+        weight: 2,
+        opacity: 0.55,
+        dashArray: "6 7"
+      }).addTo(map);
+    }
+
+    function renderAnchorMarker() {
+      if (anchorMarker) {
+        anchorMarker.remove();
+        anchorMarker = null;
+      }
+      if (!state.anchor) {
+        drawDistanceLine();
+        return;
+      }
+      const anchor = anchors[state.anchor];
+      anchorMarker = L.circleMarker([anchor.lat, anchor.lng], {
+        radius: 8,
+        color: "#111827",
+        weight: 2,
+        fillColor: "#facc15",
+        fillOpacity: 0.95
+      }).addTo(map).bindTooltip(state.anchor, { permanent: false, direction: "top" });
+      drawDistanceLine();
+    }
+
+    function renderAll() {
+      renderFilterButtons(el.regionFilters, regionOptions, "region");
+      renderFilterButtons(el.typeFilters, typeOptions, "type");
+      renderSelects();
+      renderList();
+      renderMarkers();
+      renderAnchorMarker();
+      renderLegend();
+      renderInsightPanel();
+    }
+
+    el.search.addEventListener("input", event => {
+      state.search = event.target.value;
+      renderAll();
     });
 
-    // Initial render
-    renderList();
+    document.addEventListener("click", event => {
+      const filterButton = event.target.closest("[data-filter]");
+      if (filterButton) {
+        state[filterButton.dataset.filter] = filterButton.dataset.value;
+        renderAll();
+        return;
+      }
+
+      const panelButton = event.target.closest("[data-panel]");
+      if (panelButton) {
+        activePanel = panelButton.dataset.panel;
+        renderInsightPanel();
+        return;
+      }
+
+      const actionButton = event.target.closest("[data-action]");
+      if (actionButton) {
+        event.stopPropagation();
+        const name = actionButton.dataset.name;
+        const action = actionButton.dataset.action;
+        if (action === "shortlist") toggleShortlist(name);
+        if (action === "compare") toggleCompare(name);
+        if (action === "profile") openCollegeProfile(name);
+        return;
+      }
+
+      const item = event.target.closest(".college-item");
+      if (item) showCollegePopup(item.dataset.name);
+    });
+
+    el.collegeList.addEventListener("mouseover", event => {
+      const item = event.target.closest(".college-item");
+      if (item) showCollegePopup(item.dataset.name);
+    });
+
+    el.climateFilter.addEventListener("change", event => {
+      state.climate = event.target.value;
+      renderAll();
+    });
+
+    el.anchorSelect.addEventListener("change", event => {
+      state.anchor = event.target.value;
+      activePanel = "travel";
+      renderAll();
+    });
+
+    el.resetFilters.addEventListener("click", () => {
+      state.search = "";
+      state.region = "all";
+      state.type = "all";
+      state.climate = "all";
+      el.search.value = "";
+      renderAll();
+    });
+
+    schools.forEach(createMarker);
+    renderAll();
   </script>
 </body>
 </html>
