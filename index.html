@@ -246,37 +246,23 @@
       { name: "University of Alaska Fairbanks", city: "Fairbanks, AK", lat: 64.8438, lng: -147.7339, stats: { acceptance: "~56%" } }
     ];
 
-	    // Keep the map anchored in a national view so students can compare regions.
+	    // Start at a national view so students can compare regions before zooming in.
 	    const usaView = {
 	      center: [39.8283, -113.0],
 	      zoom: 3
 	    };
 
 	    const map = L.map('map', {
-	      zoomControl: false,
-	      dragging: false,
-	      scrollWheelZoom: false,
-	      doubleClickZoom: false,
-	      boxZoom: false,
-	      keyboard: false,
-	      touchZoom: false,
+	      zoomControl: true,
+	      dragging: true,
+	      scrollWheelZoom: true,
+	      doubleClickZoom: true,
+	      boxZoom: true,
+	      keyboard: true,
+	      touchZoom: true,
 	      minZoom: usaView.zoom,
-	      maxZoom: usaView.zoom
+	      maxZoom: 19
 	    }).setView(usaView.center, usaView.zoom);
-
-	    function resetStaticFrame() {
-	      const center = map.getCenter();
-	      const isCentered = Math.abs(center.lat - usaView.center[0]) < 0.0001 &&
-	        Math.abs(center.lng - usaView.center[1]) < 0.0001;
-
-	      if (!isCentered || map.getZoom() !== usaView.zoom) {
-	        map.setView(usaView.center, usaView.zoom, { animate: false });
-	      }
-	    }
-
-	    map.on('move zoom moveend zoomend', () => {
-	      window.setTimeout(resetStaticFrame, 0);
-	    });
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -335,7 +321,6 @@
 	    function showCollegePopup(college) {
 	      setActiveCollege(college);
 	      markers[college.name].openPopup();
-	      resetStaticFrame();
 	      statsEl.innerText = `${college.name} is in ${college.city}.`;
 	    }
 
