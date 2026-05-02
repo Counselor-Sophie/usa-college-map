@@ -276,9 +276,55 @@
 	    const statsEl = document.getElementById('stats');
 	    let activeCollege = null;
 
+	    const profilePaths = {
+	      "Harvard University": "harvard.html",
+	      "Stanford University": "stanford.html",
+	      "MIT": "mit.html",
+	      "Yale University": "yale.html",
+	      "Princeton University": "princeton.html",
+	      "Columbia University": "columbia.html",
+	      "University of Pennsylvania": "upenn.html",
+	      "Brown University": "brown.html",
+	      "Duke University": "duke.html",
+	      "Northwestern University": "northwestern.html",
+	      "University of Chicago": "uchicago.html",
+	      "Caltech": "caltech.html",
+	      "Johns Hopkins University": "johns-hopkins.html",
+	      "Cornell University": "cornell.html",
+	      "Rice University": "rice.html",
+	      "Vanderbilt University": "vanderbilt.html",
+	      "University of Notre Dame": "notre-dame.html",
+	      "Georgetown University": "georgetown.html",
+	      "UC Berkeley": "uc-berkeley.html",
+	      "UCLA": "ucla.html",
+	      "UC San Diego": "uc-san-diego.html",
+	      "UC Santa Barbara": "uc-santa-barbara.html",
+	      "UC Davis": "uc-davis.html",
+	      "UC Irvine": "uc-irvine.html",
+	      "University of Michigan": "umich.html",
+	      "University of Virginia": "uva.html",
+	      "Carnegie Mellon University": "carnegie-mellon.html",
+	      "Emory University": "emory.html",
+	      "USC": "usc.html",
+	      "NYU": "nyu.html",
+	      "University of North Carolina": "unc-chapel-hill.html",
+	      "University of Georgia": "uga.html",
+	      "University of Texas at Austin": "ut-austin.html",
+	      "University of Florida": "uf.html",
+	      "University of Washington": "uw.html",
+	      "Ohio State University": "ohio-state.html",
+	      "University of Wisconsin": "uw-madison.html",
+	      "Boston University": "boston-university.html",
+	      "Boston College": "boston-college.html",
+	      "Tufts University": "tufts.html",
+	      "Wake Forest University": "wake-forest.html",
+	      "University of Rochester": "rochester.html",
+	      "Lehigh University": "lehigh.html"
+	    };
+
 	    function getProfileUrl(college) {
-	      const slug = college.name.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
-	      return `https://collegefit.counselorjay.com/${slug}.html`;
+	      const path = profilePaths[college.name];
+	      return path ? `https://collegefit.counselorjay.com/${path}` : null;
 	    }
 
 	    function buildPopupContent(college) {
@@ -287,13 +333,16 @@
 	      if (stats.sat) statsHtml += `<span><b>SAT:</b> ${stats.sat}</span>`;
 	      if (stats.act) statsHtml += `<span><b>ACT:</b> ${stats.act}</span>`;
 	      if (stats.enrollment) statsHtml += `<span><b>Enrollment:</b> ${stats.enrollment}</span>`;
+	      const action = getProfileUrl(college)
+	        ? "Click pin for full profile"
+	        : "Profile coming soon";
 
 	      return `
 	        <div class="popup-name">${college.name}</div>
 	        <div class="popup-location">${college.city}</div>
 	        <div class="popup-stats">
 	          ${statsHtml}
-	          <span class="popup-action">Click pin for full profile</span>
+	          <span class="popup-action">${action}</span>
 	        </div>
 	      `;
 	    }
@@ -325,7 +374,13 @@
 	    }
 
 	    function openCollegeProfile(college) {
-	      window.open(getProfileUrl(college), '_blank', 'noopener');
+	      const profileUrl = getProfileUrl(college);
+	      if (profileUrl) {
+	        window.open(profileUrl, '_blank', 'noopener');
+	      } else {
+	        showCollegePopup(college);
+	        statsEl.innerText = `${college.name} profile is coming soon.`;
+	      }
 	    }
 
 	    const pinIcon = L.divIcon({
