@@ -446,8 +446,7 @@
       }
 
       #stats {
-        position: sticky;
-        bottom: 0;
+        position: static;
       }
 
       #map-wrap {
@@ -1409,6 +1408,58 @@
       "Default": "#e34848"
     };
 
+    const liberalArtsNames = new Set([
+      "Williams College",
+      "Amherst College",
+      "Swarthmore College",
+      "Bowdoin College",
+      "Pomona College",
+      "Wellesley College",
+      "Carleton College",
+      "Claremont McKenna College",
+      "Harvey Mudd College",
+      "Vassar College",
+      "Barnard College",
+      "Davidson College",
+      "Hamilton College",
+      "Smith College",
+      "Wesleyan University",
+      "Grinnell College",
+      "Middlebury College",
+      "Washington and Lee University",
+      "Colgate University",
+      "University of Richmond",
+      "Haverford College",
+      "Colby College",
+      "Bates College",
+      "Macalester College",
+      "College of the Holy Cross",
+      "Bryn Mawr College",
+      "Colorado College",
+      "Bucknell University",
+      "Franklin & Marshall College",
+      "Lafayette College",
+      "Mount Holyoke College",
+      "Occidental College",
+      "Denison University",
+      "Pitzer College",
+      "Skidmore College",
+      "Trinity College",
+      "Berea College",
+      "Soka University of America",
+      "Spelman College",
+      "Trinity University",
+      "Union College",
+      "Scripps College",
+      "Dickinson College",
+      "Furman University",
+      "Kenyon College",
+      "University of the South",
+      "DePauw University",
+      "Hillsdale College",
+      "St. Olaf College"
+    ]);
+
     const stateRegions = {
       CA: "West", WA: "West", OR: "West", HI: "West", AK: "West", CO: "West", UT: "West", AZ: "West",
       MA: "Northeast", NY: "Northeast", NJ: "Northeast", CT: "Northeast", PA: "Northeast", RI: "Northeast", MD: "Northeast", DC: "Northeast", NH: "Northeast", ME: "Northeast", VT: "Northeast",
@@ -1508,7 +1559,7 @@
     function getCategory(college) {
       if (isUcSchool(college)) return "UC Public";
       if (/United States .*Academy/.test(college.name)) return "Public Service Academy";
-      if (college.name.includes("College") && !["Boston College", "Dartmouth College"].includes(college.name)) return "Liberal Arts";
+      if (liberalArtsNames.has(college.name)) return "Liberal Arts";
       return getType(college) === "Public" ? "Public Research" : "Private Research";
     }
 
