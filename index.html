@@ -504,7 +504,7 @@
     </section>
 
     <div id="college-list"></div>
-    <div id="stats">Hover over pins for details. Click available pins for profiles.</div>
+    <div id="stats">Click pins or schools for details. Open available profiles from the detail window.</div>
   </aside>
 
   <main id="map-wrap">
@@ -3409,9 +3409,7 @@
         autoPan: false
       });
 
-      marker.on("mouseover", () => showCollegePopup(college.name));
-      marker.on("focus", () => showCollegePopup(college.name));
-      marker.on("click", () => openCollegeProfile(college.name));
+      marker.on("click", () => showCollegePopup(college.name));
       markers[college.name] = marker;
     }
 
@@ -3698,11 +3696,6 @@
         return;
       }
 
-      const item = event.target.closest(".college-item");
-      if (item) showCollegePopup(item.dataset.name);
-    });
-
-    el.collegeList.addEventListener("mouseover", event => {
       const item = event.target.closest(".college-item");
       if (item) showCollegePopup(item.dataset.name);
     });
