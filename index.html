@@ -261,12 +261,14 @@
     .icon-button {
       min-width: 30px;
       height: 28px;
+      padding: 0 9px;
       border: 1px solid #d8e1ee;
       border-radius: 7px;
       background: #f8fafc;
       color: #344054;
-      font-size: 0.76rem;
+      font-size: 0.72rem;
       font-weight: 800;
+      white-space: nowrap;
     }
 
     .icon-button.active {
@@ -3422,7 +3424,7 @@
         icon: createIcon(college),
         title: college.name,
         riseOnHover: true
-      }).addTo(map);
+      });
 
       marker.bindPopup(buildPopupContent(college), {
         maxWidth: 330,
@@ -3480,6 +3482,7 @@
     function showCollegePopup(name) {
       const college = getSchool(name);
       if (!college) return;
+      ensureMarkerVisible(name);
       setActiveCollege(name);
       markers[name].setPopupContent(buildPopupContent(college));
       markers[name].openPopup();
@@ -3521,6 +3524,19 @@
       renderAll();
     }
 
+    function getPinnedNames() {
+      return new Set([
+        ...(activeCollege ? [activeCollege.name] : []),
+        ...state.shortlist,
+        ...state.compare
+      ]);
+    }
+
+    function ensureMarkerVisible(name) {
+      const marker = markers[name];
+      if (marker && !map.hasLayer(marker)) marker.addTo(map);
+    }
+
     function renderFilterButtons(target, options, key) {
       target.innerHTML = options.map(([value, label]) => (
         `<button class="chip${state[key] === value ? " active" : ""}" data-filter="${key}" data-value="${value}">${label}</button>`
@@ -3553,23 +3569,23 @@
             </div>
             <div class="college-meta">${college.category} · ${college.setting} · ${college.climate}</div>
             <div class="college-actions">
-              <button class="icon-button${state.shortlist.includes(college.name) ? " active" : ""}" title="Save to shortlist" data-action="shortlist" data-name="${escapeAttr(college.name)}">S</button>
-              <button class="icon-button${state.compare.includes(college.name) ? " active" : ""}" title="Add to compare" data-action="compare" data-name="${escapeAttr(college.name)}">C</button>
-              <button class="icon-button" title="${college.hasProfile ? "Open profile" : "Profile coming soon"}" data-action="profile" data-name="${escapeAttr(college.name)}">P</button>
+              <button class="icon-button${state.shortlist.includes(college.name) ? " active" : ""}" title="Save to shortlist" data-action="shortlist" data-name="${escapeAttr(college.name)}">Save</button>
+              <button class="icon-button${state.compare.includes(college.name) ? " active" : ""}" title="Add to compare" data-action="compare" data-name="${escapeAttr(college.name)}">Compare</button>
+              <button class="icon-button" title="${college.hasProfile ? "Open profile" : "Profile coming soon"}" data-action="profile" data-name="${escapeAttr(college.name)}">Profile</button>
             </div>
           </article>
         `;
       }).join("");
-      el.stats.innerText = `${filtered.length} colleges shown. ${state.shortlist.length} saved. ${state.compare.length} comparing.`;
+      el.stats.innerText = `${filtered.length} colleges in list. ${getPinnedNames().size} pinned on map. ${state.shortlist.length} saved.`;
     }
 
     function renderMarkers() {
-      const visibleNames = new Set(getFilteredSchools().map(college => college.name));
+      const pinnedNames = getPinnedNames();
       schools.forEach(college => {
         const marker = markers[college.name];
         marker.setIcon(createIcon(college));
         marker.setPopupContent(buildPopupContent(college));
-        if (visibleNames.has(college.name)) {
+        if (pinnedNames.has(college.name)) {
           if (!map.hasLayer(marker)) marker.addTo(map);
         } else if (map.hasLayer(marker)) {
           marker.remove();
@@ -3579,6 +3595,12 @@
     }
 
     function renderLegend() {
+      if (!getPinnedNames().size) {
+        el.legend.innerHTML = "";
+        el.legend.style.display = "none";
+        return;
+      }
+      el.legend.style.display = "";
       const profileLine = '<div><span class="legend-dot" style="background:#fff;border:2px solid #e34848"></span>Outlined pins: profile coming soon</div>';
       const climateLines = state.climate === "all"
         ? '<div><span class="legend-dot" style="background:#e34848"></span>Filled pins: CollegeFit profile ready</div>'
@@ -3599,7 +3621,7 @@
 
       if (activePanel === "shortlist") {
         if (!state.shortlist.length) {
-          el.insightPanel.innerHTML = "<strong>Shortlist</strong><br>Save schools with the S button. Your list stays in this browser.";
+          el.insightPanel.innerHTML = "<strong>Shortlist</strong><br>Save schools from the list or detail window. Saved schools stay in this browser.";
           return;
         }
         el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>${state.shortlist.map(name => {
@@ -3611,7 +3633,7 @@
 
       if (activePanel === "compare") {
         if (!state.compare.length) {
-          el.insightPanel.innerHTML = "<strong>Compare</strong><br>Add up to 5 schools with the C button.";
+          el.insightPanel.innerHTML = "<strong>Compare</strong><br>Add up to 5 schools from the list or detail window.";
           return;
         }
         el.insightPanel.innerHTML = `
