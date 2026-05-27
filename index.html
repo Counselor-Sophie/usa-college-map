@@ -164,6 +164,10 @@
       content: "-";
     }
 
+    .premium-drawer {
+      background: #ffffff;
+    }
+
     .filter-body {
       display: grid;
       gap: 10px;
@@ -207,6 +211,48 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+    }
+
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .preset-button {
+      min-height: 34px;
+      border: 1px solid #d8e1ee;
+      border-radius: 8px;
+      background: #fff;
+      color: #25324a;
+      padding: 8px 9px;
+      text-align: left;
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .preset-button:hover {
+      border-color: var(--blue);
+      box-shadow: 0 5px 14px rgba(16, 19, 31, 0.08);
+    }
+
+    .share-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .hint-text {
+      color: var(--muted);
+      font-size: 0.74rem;
+      line-height: 1.35;
     }
 
     .results-toolbar {
@@ -348,6 +394,30 @@
       line-height: 1.35;
     }
 
+    .college-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: #eef4ff;
+      color: #26406f;
+      padding: 3px 7px;
+      font-size: 0.66rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .mini-tag.fit {
+      background: #ecfdf3;
+      color: #067647;
+    }
+
     .college-actions {
       display: flex;
       gap: 6px;
@@ -475,6 +545,17 @@
       padding: 7px 10px;
       font-size: 0.76rem;
       font-weight: 800;
+    }
+
+    .region-overlay-label {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #d8e1ee;
+      border-radius: 999px;
+      box-shadow: 0 6px 16px rgba(16, 19, 31, 0.12);
+      color: #25324a;
+      font-size: 0.74rem;
+      font-weight: 900;
+      padding: 5px 9px;
     }
 
     .legend-title {
@@ -692,6 +773,98 @@
         </div>
       </details>
 
+      <details class="filter-drawer premium-drawer">
+        <summary>Premium discovery</summary>
+        <div class="filter-body">
+          <div>
+            <div class="control-label"><span>Guided starts</span></div>
+            <div class="preset-grid">
+              <button class="preset-button" data-preset="california-publics">California publics</button>
+              <button class="preset-button" data-preset="warm-weather">Warm weather</button>
+              <button class="preset-button" data-preset="profile-ready">Profile ready</button>
+              <button class="preset-button" data-preset="major-cities">Near major cities</button>
+              <button class="preset-button" data-preset="community-pathways">CC pathways</button>
+              <button class="preset-button" data-preset="college-tours">College tour hubs</button>
+            </div>
+          </div>
+
+          <div class="two-col">
+            <label>
+              <div class="control-label"><span>Fit Region</span></div>
+              <select class="select-control" id="fit-region"></select>
+            </label>
+            <label>
+              <div class="control-label"><span>Fit Climate</span></div>
+              <select class="select-control" id="fit-climate"></select>
+            </label>
+          </div>
+
+          <div class="three-col">
+            <label>
+              <div class="control-label"><span>Setting</span></div>
+              <select class="select-control" id="fit-setting">
+                <option value="">Any</option>
+                <option value="Urban">Urban</option>
+                <option value="Suburban">Suburban</option>
+                <option value="College town">College town</option>
+              </select>
+            </label>
+            <label>
+              <div class="control-label"><span>Selectivity</span></div>
+              <select class="select-control" id="fit-selectivity">
+                <option value="">Any</option>
+                <option value="Highly Selective">Highly selective</option>
+                <option value="Selective">Selective</option>
+                <option value="Accessible">Accessible</option>
+              </select>
+            </label>
+            <label>
+              <div class="control-label"><span>Profiles</span></div>
+              <select class="select-control" id="fit-profile">
+                <option value="">Any</option>
+                <option value="ready">Ready only</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="two-col">
+            <label>
+              <div class="control-label"><span>Home Base</span></div>
+              <select class="select-control" id="home-base-select"></select>
+            </label>
+            <label>
+              <div class="control-label"><span>Region Overlay</span></div>
+              <select class="select-control" id="context-select">
+                <option value="">None</option>
+                <option value="all">All regions</option>
+                <option value="West">West</option>
+                <option value="Northeast">Northeast</option>
+                <option value="Midwest">Midwest</option>
+                <option value="South">South</option>
+                <option value="California">California</option>
+                <option value="Texas">Texas</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="two-col">
+            <label>
+              <div class="control-label"><span>College Cluster</span></div>
+              <select class="select-control" id="cluster-select"></select>
+            </label>
+            <label>
+              <div class="control-label"><span>Visit Plan</span></div>
+              <button class="small-button" id="build-trip" type="button">Build route</button>
+            </label>
+          </div>
+
+          <div class="share-row">
+            <span class="hint-text">Share the current filters and selected colleges with a family.</span>
+            <button class="small-button" id="share-map" type="button">Copy link</button>
+          </div>
+        </div>
+      </details>
+
       <div class="panel-tabs">
         <button class="panel-tab active" data-panel="shortlist">Shortlist</button>
         <button class="panel-tab" data-panel="compare">Compare</button>
@@ -711,6 +884,7 @@
           <option value="featured">Featured</option>
           <option value="name">Name</option>
           <option value="region">Region</option>
+          <option value="fit">Fit score</option>
           <option value="profile">Profile ready</option>
           <option value="distance">Distance</option>
         </select>
@@ -3405,20 +3579,61 @@
     }).addTo(map);
 
     const markers = {};
+    const regionLayers = [];
     let anchorMarker = null;
     let distanceLine = null;
     let activeCollege = null;
     let activePanel = "shortlist";
+    let tripPlanNames = [];
+
+    const urlState = readUrlState();
+
+    const clusterOptions = {
+      "": { label: "None", names: [] },
+      boston: { label: "Boston area", names: ["Harvard University", "MIT", "Boston University", "Boston College", "Tufts University", "Northeastern University"] },
+      bay: { label: "Bay Area", names: ["Stanford University", "UC Berkeley", "Santa Clara University", "San Jose State University", "San Francisco State University"] },
+      la: { label: "Los Angeles", names: ["UCLA", "USC", "Caltech", "Pepperdine University", "Occidental College", "California State University, Los Angeles"] },
+      nyc: { label: "NYC / Philly", names: ["Columbia University", "NYU", "University of Pennsylvania", "Princeton University", "Villanova University"] },
+      chicago: { label: "Chicago / Midwest", names: ["University of Chicago", "Northwestern University", "University of Notre Dame", "University of Wisconsin", "University of Michigan"] },
+      texas: { label: "Texas triangle", names: ["University of Texas at Austin", "Rice University", "Texas A&M University", "University of Houston", "Dallas College"] },
+      research: { label: "Research Triangle", names: ["Duke University", "University of North Carolina", "North Carolina State University", "Wake Forest University"] }
+    };
+
+    const regionBounds = {
+      West: [[31, -125], [49, -102]],
+      Northeast: [[38, -82], [47.5, -66]],
+      Midwest: [[36, -104], [49, -80]],
+      South: [[24, -106], [39, -75]],
+      California: [[32, -125], [42.5, -113.5]],
+      Texas: [[25, -107], [37, -93]]
+    };
+
+    const regionCenters = {
+      West: [42, -116],
+      Northeast: [43, -74],
+      Midwest: [43, -92],
+      South: [32, -90],
+      California: [37, -120],
+      Texas: [31, -99]
+    };
 
     const state = {
-      search: "",
-      region: "all",
-      type: "all",
-      climate: "all",
-      anchor: "",
-      sort: "featured",
-      shortlist: readStoredList("collegeMapShortlist"),
-      compare: readStoredList("collegeMapCompare").slice(0, 5)
+      search: urlState.search || "",
+      region: urlState.region || "all",
+      type: urlState.type || "all",
+      climate: urlState.climate || "all",
+      anchor: urlState.anchor || "",
+      sort: urlState.sort || "featured",
+      fitRegion: urlState.fitRegion || "",
+      fitClimate: urlState.fitClimate || "",
+      fitSetting: urlState.fitSetting || "",
+      fitSelectivity: urlState.fitSelectivity || "",
+      fitProfile: urlState.fitProfile || "",
+      homeBase: urlState.homeBase || "",
+      context: urlState.context || "",
+      cluster: urlState.cluster || "",
+      shortlist: urlState.shortlist?.length ? urlState.shortlist : readStoredList("collegeMapShortlist"),
+      compare: (urlState.compare?.length ? urlState.compare : readStoredList("collegeMapCompare")).slice(0, 5)
     };
 
     const el = {
@@ -3428,6 +3643,16 @@
       climateFilter: document.getElementById("climate-filter"),
       anchorSelect: document.getElementById("anchor-select"),
       sortSelect: document.getElementById("sort-select"),
+      fitRegion: document.getElementById("fit-region"),
+      fitClimate: document.getElementById("fit-climate"),
+      fitSetting: document.getElementById("fit-setting"),
+      fitSelectivity: document.getElementById("fit-selectivity"),
+      fitProfile: document.getElementById("fit-profile"),
+      homeBaseSelect: document.getElementById("home-base-select"),
+      contextSelect: document.getElementById("context-select"),
+      clusterSelect: document.getElementById("cluster-select"),
+      buildTrip: document.getElementById("build-trip"),
+      shareMap: document.getElementById("share-map"),
       insightPanel: document.getElementById("insight-panel"),
       collegeList: document.getElementById("college-list"),
       stats: document.getElementById("stats"),
@@ -3445,6 +3670,33 @@
       } catch {
         return [];
       }
+    }
+
+    function readUrlState() {
+      const params = new URLSearchParams(window.location.search);
+      const splitList = key => (params.get(key) || "")
+        .split("|")
+        .map(value => decodeURIComponent(value).trim())
+        .filter(Boolean);
+      return {
+        search: params.get("q") || "",
+        region: params.get("region") || "",
+        type: params.get("type") || "",
+        climate: params.get("climate") || "",
+        anchor: params.get("anchor") || "",
+        sort: params.get("sort") || "",
+        fitRegion: params.get("fitRegion") || "",
+        fitClimate: params.get("fitClimate") || "",
+        fitSetting: params.get("fitSetting") || "",
+        fitSelectivity: params.get("fitSelectivity") || "",
+        fitProfile: params.get("fitProfile") || "",
+        homeBase: params.get("homeBase") || "",
+        context: params.get("context") || "",
+        cluster: params.get("cluster") || "",
+        shortlist: splitList("saved"),
+        compare: splitList("compare"),
+        active: params.get("active") || ""
+      };
     }
 
     function storeLists() {
@@ -3532,6 +3784,51 @@
       return path ? `https://collegefit.counselorjay.com/${path}` : null;
     }
 
+    function getAcceptanceRate(college) {
+      const raw = college.stats.acceptance || "";
+      const match = raw.match(/\d+(\.\d+)?/);
+      return match ? Number(match[0]) : null;
+    }
+
+    function getSelectivity(college) {
+      const rate = getAcceptanceRate(college);
+      if (rate === null) return "Unknown";
+      if (rate <= 15) return "Highly Selective";
+      if (rate <= 45) return "Selective";
+      return "Accessible";
+    }
+
+    function getSizeLabel(college) {
+      const enrollment = Number(String(college.stats.enrollment || "").replace(/,/g, ""));
+      if (enrollment && enrollment < 3000) return "Small";
+      if (enrollment && enrollment < 12000) return "Mid-size";
+      if (college.systemType?.includes("Community College") || college.systemType === "CSU" || isUcSchool(college)) return "Large";
+      if (/College$/.test(college.name) && !/Community/.test(college.name)) return "Small";
+      return "Mid-size";
+    }
+
+    function getStrengths(college) {
+      const name = college.name;
+      if (/MIT|Caltech|Carnegie Mellon|Georgia Tech|Purdue|Rensselaer|Harvey Mudd/.test(name)) return "STEM and engineering";
+      if (/Rice|Johns Hopkins|Emory|Washington University|Case Western/.test(name)) return "Research and health";
+      if (/Babson|Bentley|Wharton|University of Pennsylvania|NYU/.test(name)) return "Business and entrepreneurship";
+      if (/Art|Design|Music|Parsons|Pratt|RISD/.test(name)) return "Arts and design";
+      if (/Community College|College$/.test(college.category) || college.systemType?.includes("Community College")) return "Transfer pathways";
+      if (isUcSchool(college) || college.systemType === "CSU") return "California public pathways";
+      return college.setting === "Urban" ? "City access and internships" : "Broad academic exploration";
+    }
+
+    function getTravelComplexity(college) {
+      if (!state.homeBase) return "";
+      const home = anchors[state.homeBase];
+      if (!home) return "";
+      const miles = haversineMiles(home, college);
+      if (miles < 120) return "local visit";
+      if (miles < 650) return "regional flight or long drive";
+      if (college.airport === "Regional airport") return "connecting flight likely";
+      return "major flight route";
+    }
+
     function enrichCollege(college) {
       const stateCode = getStateCode(college);
       return {
@@ -3544,6 +3841,9 @@
         climate: getClimate(college),
         setting: getSetting(college),
         airport: airports[stateCode] || "Regional airport",
+        sizeLabel: getSizeLabel(college),
+        selectivity: getSelectivity(college),
+        strengths: getStrengths(college),
         vibe: getVibe(college),
         bestFor: getBestFor(college),
         profileUrl: getProfileUrl(college),
@@ -3588,6 +3888,39 @@
         .replace(/'/g, "&#039;");
     }
 
+    function hasFitPreferences() {
+      return Boolean(state.fitRegion || state.fitClimate || state.fitSetting || state.fitSelectivity || state.fitProfile);
+    }
+
+    function getFitScore(college) {
+      let possible = 0;
+      let score = 0;
+      const add = (matches, weight) => {
+        possible += weight;
+        if (matches) score += weight;
+      };
+      if (state.fitRegion) add(college.region === state.fitRegion || college.broadRegion === state.fitRegion, 24);
+      if (state.fitClimate) add(college.climate === state.fitClimate, 18);
+      if (state.fitSetting) add(college.setting === state.fitSetting, 16);
+      if (state.fitSelectivity) add(college.selectivity === state.fitSelectivity, 16);
+      if (state.fitProfile) add(college.hasProfile, 12);
+      if (!possible) return null;
+      if (college.hasProfile) score += 6;
+      if (college.stats.acceptance) score += 4;
+      possible += 10;
+      return Math.round((score / possible) * 100);
+    }
+
+    function getFitReasons(college) {
+      const reasons = [];
+      if (state.fitRegion && (college.region === state.fitRegion || college.broadRegion === state.fitRegion)) reasons.push(college.region);
+      if (state.fitClimate && college.climate === state.fitClimate) reasons.push(college.climate);
+      if (state.fitSetting && college.setting === state.fitSetting) reasons.push(college.setting);
+      if (state.fitSelectivity && college.selectivity === state.fitSelectivity) reasons.push(college.selectivity);
+      if (state.fitProfile && college.hasProfile) reasons.push("profile ready");
+      return reasons.slice(0, 3).join(", ");
+    }
+
     function buildPinHtml(college) {
       const color = state.climate === "all" ? climateColors.Default : climateColors[college.climate] || climateColors.Default;
       const classes = `college-pin${college.hasProfile ? "" : " no-profile"}`;
@@ -3608,6 +3941,9 @@
       const stats = college.stats;
       const distance = getAnchorDistance(college);
       const travelLine = distance ? `<div class="popup-note"><strong>${distance} mi</strong> from ${state.anchor}. ${driveTimeText(distance)}.</div>` : "";
+      const homeLine = state.homeBase ? `<div class="popup-note"><strong>Travel</strong>: ${getTravelComplexity(college)} from ${state.homeBase}.</div>` : "";
+      const fitScore = getFitScore(college);
+      const fitLine = fitScore !== null ? `<div class="popup-note"><strong>${fitScore}% fit</strong>${getFitReasons(college) ? `: ${getFitReasons(college)}.` : "."}</div>` : "";
       const profileLabel = college.hasProfile ? "Open profile" : "Profile coming soon";
       const profileDisabled = college.hasProfile ? "" : "disabled";
 
@@ -3619,9 +3955,13 @@
           <span><strong>Type</strong><br>${college.category}</span>
           <span><strong>Climate</strong><br>${college.climate}</span>
           <span><strong>Airport</strong><br>${college.airport}</span>
+          <span><strong>Size</strong><br>${college.sizeLabel}</span>
+          <span><strong>Strength</strong><br>${college.strengths}</span>
         </div>
         <div class="popup-note">${college.vibe}. ${college.bestFor}.</div>
+        ${fitLine}
         ${travelLine}
+        ${homeLine}
         <div class="popup-actions">
           <button data-action="profile" data-name="${escapeAttr(college.name)}" ${profileDisabled}>${profileLabel}</button>
           <button data-action="shortlist" data-name="${escapeAttr(college.name)}">${state.shortlist.includes(college.name) ? "Saved" : "Save"}</button>
@@ -3665,7 +4005,8 @@
         college.category.includes(state.type) ||
         (state.type === "Profile" && college.hasProfile);
       const matchesClimate = state.climate === "all" || college.climate === state.climate;
-      return matchesSearch && matchesRegion && matchesType && matchesClimate;
+      const matchesFitProfile = state.fitProfile !== "ready" || college.hasProfile;
+      return matchesSearch && matchesRegion && matchesType && matchesClimate && matchesFitProfile;
     }
 
     function getFilteredSchools() {
@@ -3684,6 +4025,9 @@
         }
         if (sortMode === "profile") {
           return Number(b.hasProfile) - Number(a.hasProfile) || a.name.localeCompare(b.name);
+        }
+        if (sortMode === "fit") {
+          return (getFitScore(b) || 0) - (getFitScore(a) || 0) || a.name.localeCompare(b.name);
         }
         if (sortMode === "distance") {
           return getAnchorDistance(a) - getAnchorDistance(b) || a.name.localeCompare(b.name);
@@ -3761,7 +4105,8 @@
       return new Set([
         ...(activeCollege ? [activeCollege.name] : []),
         ...state.shortlist,
-        ...state.compare
+        ...state.compare,
+        ...tripPlanNames
       ]);
     }
 
@@ -3780,12 +4125,29 @@
       el.climateFilter.innerHTML = climateOptions.map(([value, label]) => (
         `<option value="${value}"${state.climate === value ? " selected" : ""}>${label}</option>`
       )).join("");
+      el.fitClimate.innerHTML = climateOptions.map(([value, label]) => (
+        `<option value="${value === "all" ? "" : value}"${state.fitClimate === (value === "all" ? "" : value) ? " selected" : ""}>${value === "all" ? "Any" : label}</option>`
+      )).join("");
+      el.fitRegion.innerHTML = regionOptions.map(([value, label]) => (
+        `<option value="${value === "all" ? "" : value}"${state.fitRegion === (value === "all" ? "" : value) ? " selected" : ""}>${value === "all" ? "Any" : label}</option>`
+      )).join("");
       el.anchorSelect.innerHTML = Object.keys(anchors).map(name => {
         const label = name || "None";
         return `<option value="${name}"${state.anchor === name ? " selected" : ""}>${label}</option>`;
       }).join("");
+      el.homeBaseSelect.innerHTML = Object.keys(anchors).map(name => {
+        const label = name || "None";
+        return `<option value="${name}"${state.homeBase === name ? " selected" : ""}>${label}</option>`;
+      }).join("");
+      el.clusterSelect.innerHTML = Object.entries(clusterOptions).map(([value, cluster]) => (
+        `<option value="${value}"${state.cluster === value ? " selected" : ""}>${cluster.label}</option>`
+      )).join("");
       el.sortSelect.value = state.sort;
       el.sortSelect.querySelector('option[value="distance"]').disabled = !state.anchor;
+      el.fitSetting.value = state.fitSetting;
+      el.fitSelectivity.value = state.fitSelectivity;
+      el.fitProfile.value = state.fitProfile;
+      el.contextSelect.value = state.context;
     }
 
     function renderList() {
@@ -3795,6 +4157,9 @@
       el.collegeList.innerHTML = filtered.map(college => {
         const distance = getAnchorDistance(college);
         const distanceText = distance ? ` · ${distance} mi from ${state.anchor}` : "";
+        const fitScore = getFitScore(college);
+        const fitTag = fitScore !== null ? `<span class="mini-tag fit">${fitScore}% fit</span>` : "";
+        const travelTag = state.homeBase ? `<span class="mini-tag">${getTravelComplexity(college)}</span>` : "";
         return `
           <article class="college-item${activeCollege?.name === college.name ? " active" : ""}" data-name="${escapeAttr(college.name)}">
             <div class="college-row-top">
@@ -3805,6 +4170,13 @@
               <span class="badge${college.hasProfile ? "" : " muted"}">${college.hasProfile ? "Profile" : "Soon"}</span>
             </div>
             <div class="college-meta">${college.category} · ${college.setting} · ${college.climate}</div>
+            <div class="college-tags">
+              ${fitTag}
+              <span class="mini-tag">${college.sizeLabel}</span>
+              <span class="mini-tag">${college.selectivity}</span>
+              <span class="mini-tag">${college.strengths}</span>
+              ${travelTag}
+            </div>
             <div class="college-actions">
               <button class="icon-button${state.shortlist.includes(college.name) ? " active" : ""}" title="Save to shortlist" data-action="shortlist" data-name="${escapeAttr(college.name)}">Save</button>
               <button class="icon-button${state.compare.includes(college.name) ? " active" : ""}" title="Add to compare" data-action="compare" data-name="${escapeAttr(college.name)}">Compare</button>
@@ -3863,6 +4235,148 @@
       )).join("");
     }
 
+    function clearRegionOverlays() {
+      regionLayers.splice(0).forEach(layer => layer.remove());
+    }
+
+    function renderRegionOverlays() {
+      clearRegionOverlays();
+      if (!state.context) return;
+      const names = state.context === "all" ? Object.keys(regionBounds) : [state.context];
+      names.forEach(name => {
+        const bounds = regionBounds[name];
+        const center = regionCenters[name];
+        if (!bounds || !center) return;
+        const rectangle = L.rectangle(bounds, {
+          color: "#2563eb",
+          weight: 1,
+          opacity: 0.45,
+          fillColor: "#2563eb",
+          fillOpacity: 0.055,
+          interactive: false
+        }).addTo(map);
+        const label = L.marker(center, {
+          icon: L.divIcon({
+            className: "region-overlay-label",
+            html: name,
+            iconSize: null
+          }),
+          interactive: false
+        }).addTo(map);
+        regionLayers.push(rectangle, label);
+      });
+    }
+
+    function applyPreset(preset) {
+      state.search = "";
+      state.region = "all";
+      state.type = "all";
+      state.climate = "all";
+      state.context = "";
+      state.fitRegion = "";
+      state.fitClimate = "";
+      state.fitSetting = "";
+      state.fitSelectivity = "";
+      state.fitProfile = "";
+      state.cluster = "";
+      state.sort = "featured";
+      tripPlanNames = [];
+      if (preset === "california-publics") {
+        state.region = "California";
+        state.type = "Public";
+        state.context = "California";
+        state.fitRegion = "California";
+      }
+      if (preset === "warm-weather") {
+        state.climate = "Hot or Humid";
+        state.fitClimate = "Hot or Humid";
+        state.context = "South";
+        state.sort = "fit";
+      }
+      if (preset === "profile-ready") {
+        state.type = "Profile";
+        state.fitProfile = "ready";
+        state.sort = "profile";
+      }
+      if (preset === "major-cities") {
+        state.fitSetting = "Urban";
+        state.sort = "fit";
+      }
+      if (preset === "community-pathways") {
+        state.region = "California";
+        state.type = "CA Community College";
+        state.fitSelectivity = "Accessible";
+        state.context = "California";
+      }
+      if (preset === "college-tours") {
+        state.cluster = "boston";
+        applyCluster("boston");
+      }
+      el.search.value = "";
+      renderAll();
+    }
+
+    function applyCluster(key) {
+      state.cluster = key;
+      tripPlanNames = (clusterOptions[key]?.names || []).filter(name => getSchool(name)).slice(0, 6);
+      if (tripPlanNames.length) {
+        activePanel = "travel";
+        state.sort = "featured";
+        activeCollege = getSchool(tripPlanNames[0]);
+      }
+    }
+
+    function buildTripPlan() {
+      const candidates = [...getPinnedNames()].filter(name => getSchool(name));
+      const source = candidates.length ? candidates : getVisibleSchools().slice(0, 5).map(school => school.name);
+      const origin = anchors[state.homeBase] || anchors[state.anchor] || null;
+      tripPlanNames = [...new Set(source)]
+        .sort((a, b) => {
+          if (!origin) return getSchool(a).name.localeCompare(getSchool(b).name);
+          return haversineMiles(origin, getSchool(a)) - haversineMiles(origin, getSchool(b));
+        })
+        .slice(0, 6);
+      activePanel = "travel";
+      if (tripPlanNames[0]) activeCollege = getSchool(tripPlanNames[0]);
+      renderAll();
+    }
+
+    function buildShareUrl() {
+      const params = new URLSearchParams();
+      const set = (key, value) => {
+        if (value && value !== "all") params.set(key, value);
+      };
+      set("q", state.search);
+      set("region", state.region);
+      set("type", state.type);
+      set("climate", state.climate);
+      set("anchor", state.anchor);
+      set("sort", state.sort === "featured" ? "" : state.sort);
+      set("fitRegion", state.fitRegion);
+      set("fitClimate", state.fitClimate);
+      set("fitSetting", state.fitSetting);
+      set("fitSelectivity", state.fitSelectivity);
+      set("fitProfile", state.fitProfile);
+      set("homeBase", state.homeBase);
+      set("context", state.context);
+      set("cluster", state.cluster);
+      if (activeCollege) params.set("active", activeCollege.name);
+      if (state.shortlist.length) params.set("saved", state.shortlist.map(encodeURIComponent).join("|"));
+      if (state.compare.length) params.set("compare", state.compare.map(encodeURIComponent).join("|"));
+      const query = params.toString();
+      return `${window.location.origin}${window.location.pathname}${query ? `?${query}` : ""}`;
+    }
+
+    async function copyShareLink() {
+      const url = buildShareUrl();
+      try {
+        await navigator.clipboard.writeText(url);
+        el.stats.innerText = "Share link copied.";
+      } catch {
+        window.prompt("Copy this map link:", url);
+      }
+    }
+
     function renderInsightPanel() {
       document.querySelectorAll(".panel-tab").forEach(tab => {
         tab.classList.toggle("active", tab.dataset.panel === activePanel);
@@ -3870,7 +4384,10 @@
 
       if (activePanel === "shortlist") {
         if (!state.shortlist.length) {
-          el.insightPanel.innerHTML = "<strong>Shortlist</strong><br>Save schools from the list or detail window. Saved schools stay in this browser.";
+          const fitLine = hasFitPreferences()
+            ? `<br><strong>Fit mode active</strong><br>${getVisibleSchools().slice(0, 3).map(school => `${school.name}: ${getFitScore(school)}%`).join("<br>")}`
+            : "";
+          el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>Save schools from the list or detail window. Saved schools stay in this browser.${fitLine}`;
           return;
         }
         el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>${state.shortlist.map(name => {
@@ -3898,16 +4415,23 @@
       }
 
       if (!state.anchor) {
-        el.insightPanel.innerHTML = "<strong>Travel</strong><br>Choose a known place to estimate distance from familiar US cities.";
+        if (tripPlanNames.length) {
+          el.insightPanel.innerHTML = `<strong>Visit route</strong><br>${tripPlanNames.map((name, index) => {
+            const school = getSchool(name);
+            return `${index + 1}. ${school.name} (${school.city})`;
+          }).join("<br>")}`;
+          return;
+        }
+        el.insightPanel.innerHTML = "<strong>Travel</strong><br>Choose a known place or home base, then build a route from selected colleges.";
         return;
       }
 
-      const sorted = getFilteredSchools()
+      const sorted = (tripPlanNames.length ? tripPlanNames.map(getSchool) : getFilteredSchools())
         .map(school => ({ school, distance: getAnchorDistance(school) }))
         .sort((a, b) => a.distance - b.distance)
         .slice(0, 5);
-      el.insightPanel.innerHTML = `<strong>Closest to ${state.anchor}</strong><br>${sorted.map(item => (
-        `${item.school.name}: ${item.distance} mi, ${driveTimeText(item.distance)}`
+      el.insightPanel.innerHTML = `<strong>${tripPlanNames.length ? "Visit route" : `Closest to ${state.anchor}`}</strong><br>${sorted.map((item, index) => (
+        `${tripPlanNames.length ? `${index + 1}. ` : ""}${item.school.name}: ${item.distance} mi, ${driveTimeText(item.distance)}`
       )).join("<br>")}`;
     }
 
@@ -3915,6 +4439,16 @@
       if (distanceLine) {
         distanceLine.remove();
         distanceLine = null;
+      }
+      if (tripPlanNames.length > 1) {
+        const points = tripPlanNames.map(name => getSchool(name)).filter(Boolean).map(school => [school.lat, school.lng]);
+        distanceLine = L.polyline(points, {
+          color: "#0f766e",
+          weight: 3,
+          opacity: 0.65,
+          dashArray: "8 8"
+        }).addTo(map);
+        return;
       }
       if (!state.anchor || !activeCollege) return;
       const anchor = anchors[state.anchor];
@@ -3953,6 +4487,7 @@
       renderList();
       renderMarkers();
       renderAnchorMarker();
+      renderRegionOverlays();
       renderLegend();
       renderMapState();
       renderInsightPanel();
@@ -3975,6 +4510,12 @@
       if (panelButton) {
         activePanel = panelButton.dataset.panel;
         renderInsightPanel();
+        return;
+      }
+
+      const presetButton = event.target.closest("[data-preset]");
+      if (presetButton) {
+        applyPreset(presetButton.dataset.preset);
         return;
       }
 
@@ -4016,6 +4557,36 @@
       renderAll();
     });
 
+    [el.fitRegion, el.fitClimate, el.fitSetting, el.fitSelectivity, el.fitProfile].forEach(control => {
+      control.addEventListener("change", () => {
+        state.fitRegion = el.fitRegion.value;
+        state.fitClimate = el.fitClimate.value;
+        state.fitSetting = el.fitSetting.value;
+        state.fitSelectivity = el.fitSelectivity.value;
+        state.fitProfile = el.fitProfile.value;
+        if (hasFitPreferences()) state.sort = "fit";
+        renderAll();
+      });
+    });
+
+    el.homeBaseSelect.addEventListener("change", event => {
+      state.homeBase = event.target.value;
+      renderAll();
+    });
+
+    el.contextSelect.addEventListener("change", event => {
+      state.context = event.target.value;
+      renderAll();
+    });
+
+    el.clusterSelect.addEventListener("change", event => {
+      applyCluster(event.target.value);
+      renderAll();
+    });
+
+    el.buildTrip.addEventListener("click", buildTripPlan);
+    el.shareMap.addEventListener("click", copyShareLink);
+
     el.resetFilters.addEventListener("click", () => {
       state.search = "";
       state.region = "all";
@@ -4023,11 +4594,23 @@
       state.climate = "all";
       state.anchor = "";
       state.sort = "featured";
+      state.fitRegion = "";
+      state.fitClimate = "";
+      state.fitSetting = "";
+      state.fitSelectivity = "";
+      state.fitProfile = "";
+      state.homeBase = "";
+      state.context = "";
+      state.cluster = "";
+      tripPlanNames = [];
       el.search.value = "";
       renderAll();
     });
 
     schools.forEach(createMarker);
+    if (urlState.cluster) applyCluster(urlState.cluster);
+    if (urlState.active && getSchool(urlState.active)) activeCollege = getSchool(urlState.active);
+    el.search.value = state.search;
     renderAll();
   </script>
 </body>
