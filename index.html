@@ -168,11 +168,44 @@
       background: #ffffff;
     }
 
+    .sub-drawer {
+      border-top: 1px solid #e7edf5;
+      padding-top: 8px;
+    }
+
+    .sub-drawer summary {
+      color: #344054;
+      cursor: pointer;
+      font-size: 0.76rem;
+      font-weight: 800;
+      list-style: none;
+      padding: 4px 0;
+      text-transform: uppercase;
+    }
+
+    .sub-drawer summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .sub-drawer summary::after {
+      content: " +";
+      color: var(--blue);
+    }
+
+    .sub-drawer[open] summary::after {
+      content: " -";
+    }
+
     .filter-body {
       display: grid;
       gap: 10px;
       padding: 0 12px 12px;
       border-top: 1px solid #e7edf5;
+    }
+
+    .filter-drawer:not([open]) > .filter-body,
+    .sub-drawer:not([open]) > .filter-body {
+      display: none;
     }
 
     .chip, .small-button, .select-control {
@@ -253,6 +286,46 @@
       color: var(--muted);
       font-size: 0.74rem;
       line-height: 1.35;
+    }
+
+    .guide-panel {
+      display: none;
+      border-bottom: 1px solid var(--line);
+      background: #eef6ff;
+      padding: 12px 20px;
+    }
+
+    .guide-panel.active {
+      display: block;
+    }
+
+    .guide-panel-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .guide-title {
+      color: #102a56;
+      font-size: 0.9rem;
+      font-weight: 850;
+    }
+
+    .guide-copy {
+      color: #40516d;
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .guide-steps {
+      display: grid;
+      gap: 5px;
+      color: #243b64;
+      font-size: 0.76rem;
+      line-height: 1.35;
+      margin-top: 8px;
     }
 
     .results-toolbar {
@@ -788,75 +861,80 @@
             </div>
           </div>
 
-          <div class="two-col">
-            <label>
-              <div class="control-label"><span>Fit Region</span></div>
-              <select class="select-control" id="fit-region"></select>
-            </label>
-            <label>
-              <div class="control-label"><span>Fit Climate</span></div>
-              <select class="select-control" id="fit-climate"></select>
-            </label>
-          </div>
+          <details class="sub-drawer">
+            <summary>Advanced fit tools</summary>
+            <div class="filter-body">
+              <div class="two-col">
+                <label>
+                  <div class="control-label"><span>Fit Region</span></div>
+                  <select class="select-control" id="fit-region"></select>
+                </label>
+                <label>
+                  <div class="control-label"><span>Fit Climate</span></div>
+                  <select class="select-control" id="fit-climate"></select>
+                </label>
+              </div>
 
-          <div class="three-col">
-            <label>
-              <div class="control-label"><span>Setting</span></div>
-              <select class="select-control" id="fit-setting">
-                <option value="">Any</option>
-                <option value="Urban">Urban</option>
-                <option value="Suburban">Suburban</option>
-                <option value="College town">College town</option>
-              </select>
-            </label>
-            <label>
-              <div class="control-label"><span>Selectivity</span></div>
-              <select class="select-control" id="fit-selectivity">
-                <option value="">Any</option>
-                <option value="Highly Selective">Highly selective</option>
-                <option value="Selective">Selective</option>
-                <option value="Accessible">Accessible</option>
-              </select>
-            </label>
-            <label>
-              <div class="control-label"><span>Profiles</span></div>
-              <select class="select-control" id="fit-profile">
-                <option value="">Any</option>
-                <option value="ready">Ready only</option>
-              </select>
-            </label>
-          </div>
+              <div class="three-col">
+                <label>
+                  <div class="control-label"><span>Setting</span></div>
+                  <select class="select-control" id="fit-setting">
+                    <option value="">Any</option>
+                    <option value="Urban">Urban</option>
+                    <option value="Suburban">Suburban</option>
+                    <option value="College town">College town</option>
+                  </select>
+                </label>
+                <label>
+                  <div class="control-label"><span>Selectivity</span></div>
+                  <select class="select-control" id="fit-selectivity">
+                    <option value="">Any</option>
+                    <option value="Highly Selective">Highly selective</option>
+                    <option value="Selective">Selective</option>
+                    <option value="Accessible">Accessible</option>
+                  </select>
+                </label>
+                <label>
+                  <div class="control-label"><span>Profiles</span></div>
+                  <select class="select-control" id="fit-profile">
+                    <option value="">Any</option>
+                    <option value="ready">Ready only</option>
+                  </select>
+                </label>
+              </div>
 
-          <div class="two-col">
-            <label>
-              <div class="control-label"><span>Home Base</span></div>
-              <select class="select-control" id="home-base-select"></select>
-            </label>
-            <label>
-              <div class="control-label"><span>Region Overlay</span></div>
-              <select class="select-control" id="context-select">
-                <option value="">None</option>
-                <option value="all">All regions</option>
-                <option value="West">West</option>
-                <option value="Northeast">Northeast</option>
-                <option value="Midwest">Midwest</option>
-                <option value="South">South</option>
-                <option value="California">California</option>
-                <option value="Texas">Texas</option>
-              </select>
-            </label>
-          </div>
+              <div class="two-col">
+                <label>
+                  <div class="control-label"><span>Home Base</span></div>
+                  <select class="select-control" id="home-base-select"></select>
+                </label>
+                <label>
+                  <div class="control-label"><span>Region Overlay</span></div>
+                  <select class="select-control" id="context-select">
+                    <option value="">None</option>
+                    <option value="all">All regions</option>
+                    <option value="West">West</option>
+                    <option value="Northeast">Northeast</option>
+                    <option value="Midwest">Midwest</option>
+                    <option value="South">South</option>
+                    <option value="California">California</option>
+                    <option value="Texas">Texas</option>
+                  </select>
+                </label>
+              </div>
 
-          <div class="two-col">
-            <label>
-              <div class="control-label"><span>College Cluster</span></div>
-              <select class="select-control" id="cluster-select"></select>
-            </label>
-            <label>
-              <div class="control-label"><span>Visit Plan</span></div>
-              <button class="small-button" id="build-trip" type="button">Build route</button>
-            </label>
-          </div>
+              <div class="two-col">
+                <label>
+                  <div class="control-label"><span>College Cluster</span></div>
+                  <select class="select-control" id="cluster-select"></select>
+                </label>
+                <label>
+                  <div class="control-label"><span>Visit Plan</span></div>
+                  <button class="small-button" id="build-trip" type="button">Build route</button>
+                </label>
+              </div>
+            </div>
+          </details>
 
           <div class="share-row">
             <span class="hint-text">Share the current filters and selected colleges with a family.</span>
@@ -872,6 +950,8 @@
       </div>
       <div id="insight-panel"></div>
     </section>
+
+    <section class="guide-panel" id="guide-panel"></section>
 
     <section class="results-toolbar">
       <div>
@@ -3585,6 +3665,7 @@
     let activeCollege = null;
     let activePanel = "shortlist";
     let tripPlanNames = [];
+    let activeGuide = null;
 
     const urlState = readUrlState();
 
@@ -3597,6 +3678,49 @@
       chicago: { label: "Chicago / Midwest", names: ["University of Chicago", "Northwestern University", "University of Notre Dame", "University of Wisconsin", "University of Michigan"] },
       texas: { label: "Texas triangle", names: ["University of Texas at Austin", "Rice University", "Texas A&M University", "University of Houston", "Dallas College"] },
       research: { label: "Research Triangle", names: ["Duke University", "University of North Carolina", "North Carolina State University", "Wake Forest University"] }
+    };
+
+    const guideCopy = {
+      "california-publics": {
+        title: "California publics",
+        copy: "Showing UC, CSU, and other public California options with California highlighted on the map.",
+        steps: ["Click a college card below to place its pin.", "Use Save to keep strong options pinned.", "Open Premium Discovery again only if you want to tune the fit."]
+      },
+      "warm-weather": {
+        title: "Warm weather",
+        copy: "Showing warmer climate schools and ranking by fit for hot or humid regions.",
+        steps: ["Scan the fit tags on each card.", "Click a school to see location details.", "Choose a home base to compare travel effort."]
+      },
+      "profile-ready": {
+        title: "Profile-ready schools",
+        copy: "Showing schools with CollegeFit profiles ready to open.",
+        steps: ["Click a card to pin the school.", "Use Profile for the full CollegeFit page.", "Save favorites to keep them on the map."]
+      },
+      "major-cities": {
+        title: "Near major cities",
+        copy: "Ranking urban campuses first for students who want city access and internships.",
+        steps: ["Click a city-connected college to place it on the map.", "Compare airport access in the detail popup.", "Save the strongest options."]
+      },
+      "community-pathways": {
+        title: "Community college pathways",
+        copy: "Showing California community college pathways with accessible options first.",
+        steps: ["Click a college to locate it in California.", "Save nearby options for transfer planning.", "Use the California overlay for geographic context."]
+      },
+      "college-tours": {
+        title: "College tour hubs",
+        copy: "Starting with a Boston-area visit cluster.",
+        steps: ["Use the map tray to open each pinned school.", "Build route after choosing a home base.", "Switch clusters in Advanced fit tools."]
+      },
+      fit: {
+        title: "Fit mode",
+        copy: "Ranking schools by the preferences you selected.",
+        steps: ["Higher fit scores rise to the top.", "Click any school to place it on the map.", "Save or compare the best matches."]
+      },
+      cluster: {
+        title: "College cluster",
+        copy: "Pinned a group of nearby schools that can work as a visit route.",
+        steps: ["Click the map tray pills to inspect each school.", "Choose a home base for travel context.", "Use Build route to order selected schools."]
+      }
     };
 
     const regionBounds = {
@@ -3661,6 +3785,7 @@
       mapTray: document.getElementById("map-tray"),
       resultsCount: document.getElementById("results-count"),
       resultsContext: document.getElementById("results-context"),
+      guidePanel: document.getElementById("guide-panel"),
       resetFilters: document.getElementById("reset-filters")
     };
 
@@ -4312,7 +4437,9 @@
         state.cluster = "boston";
         applyCluster("boston");
       }
+      activeGuide = preset;
       el.search.value = "";
+      collapseDiscoveryDrawers();
       renderAll();
     }
 
@@ -4320,6 +4447,7 @@
       state.cluster = key;
       tripPlanNames = (clusterOptions[key]?.names || []).filter(name => getSchool(name)).slice(0, 6);
       if (tripPlanNames.length) {
+        activeGuide = "cluster";
         activePanel = "travel";
         state.sort = "featured";
         activeCollege = getSchool(tripPlanNames[0]);
@@ -4337,6 +4465,7 @@
         })
         .slice(0, 6);
       activePanel = "travel";
+      activeGuide = "cluster";
       if (tripPlanNames[0]) activeCollege = getSchool(tripPlanNames[0]);
       renderAll();
     }
@@ -4377,6 +4506,34 @@
       }
     }
 
+    function collapseDiscoveryDrawers() {
+      document.querySelectorAll(".filter-drawer").forEach(drawer => {
+        drawer.open = false;
+      });
+    }
+
+    function renderGuidePanel() {
+      const guide = guideCopy[activeGuide];
+      if (!guide) {
+        el.guidePanel.classList.remove("active");
+        el.guidePanel.innerHTML = "";
+        return;
+      }
+      el.guidePanel.classList.add("active");
+      el.guidePanel.innerHTML = `
+        <div class="guide-panel-top">
+          <div>
+            <div class="guide-title">${escapeHtml(guide.title)} is active</div>
+            <div class="guide-copy">${escapeHtml(guide.copy)}</div>
+          </div>
+          <button class="small-button" data-guide-action="clear" type="button">Clear</button>
+        </div>
+        <div class="guide-steps">
+          ${guide.steps.map((step, index) => `<div><strong>${index + 1}.</strong> ${escapeHtml(step)}</div>`).join("")}
+        </div>
+      `;
+    }
+
     function renderInsightPanel() {
       document.querySelectorAll(".panel-tab").forEach(tab => {
         tab.classList.toggle("active", tab.dataset.panel === activePanel);
@@ -4384,10 +4541,7 @@
 
       if (activePanel === "shortlist") {
         if (!state.shortlist.length) {
-          const fitLine = hasFitPreferences()
-            ? `<br><strong>Fit mode active</strong><br>${getVisibleSchools().slice(0, 3).map(school => `${school.name}: ${getFitScore(school)}%`).join("<br>")}`
-            : "";
-          el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>Save schools from the list or detail window. Saved schools stay in this browser.${fitLine}`;
+          el.insightPanel.innerHTML = "<strong>Shortlist</strong><br>Save schools from the list or detail window. Saved schools stay in this browser.";
           return;
         }
         el.insightPanel.innerHTML = `<strong>Shortlist</strong><br>${state.shortlist.map(name => {
@@ -4490,6 +4644,7 @@
       renderRegionOverlays();
       renderLegend();
       renderMapState();
+      renderGuidePanel();
       renderInsightPanel();
     }
 
@@ -4510,6 +4665,13 @@
       if (panelButton) {
         activePanel = panelButton.dataset.panel;
         renderInsightPanel();
+        return;
+      }
+
+      const guideAction = event.target.closest("[data-guide-action]");
+      if (guideAction) {
+        activeGuide = null;
+        renderGuidePanel();
         return;
       }
 
@@ -4564,7 +4726,12 @@
         state.fitSetting = el.fitSetting.value;
         state.fitSelectivity = el.fitSelectivity.value;
         state.fitProfile = el.fitProfile.value;
-        if (hasFitPreferences()) state.sort = "fit";
+        if (hasFitPreferences()) {
+          state.sort = "fit";
+          activeGuide = "fit";
+        } else if (activeGuide === "fit") {
+          activeGuide = null;
+        }
         renderAll();
       });
     });
@@ -4603,6 +4770,7 @@
       state.context = "";
       state.cluster = "";
       tripPlanNames = [];
+      activeGuide = null;
       el.search.value = "";
       renderAll();
     });
