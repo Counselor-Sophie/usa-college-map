@@ -164,10 +164,6 @@
       content: "-";
     }
 
-    .premium-drawer {
-      background: #ffffff;
-    }
-
     .sub-drawer {
       border-top: 1px solid #e7edf5;
       padding-top: 8px;
@@ -254,25 +250,68 @@
 
     .preset-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 7px;
+      gap: 8px;
+    }
+
+    .pathway-panel {
+      border: 1px solid #e1e7f0;
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 12px;
+    }
+
+    .pathway-heading {
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-weight: 850;
+      margin-bottom: 3px;
+    }
+
+    .pathway-subcopy {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.35;
+      margin-bottom: 10px;
     }
 
     .preset-button {
-      min-height: 34px;
+      min-height: 48px;
       border: 1px solid #d8e1ee;
       border-radius: 8px;
       background: #fff;
       color: #25324a;
-      padding: 8px 9px;
+      padding: 9px 10px;
       text-align: left;
-      font-size: 0.74rem;
+      font-size: 0.78rem;
       font-weight: 800;
     }
 
-    .preset-button:hover {
+    .preset-button:hover,
+    .preset-button.active {
       border-color: var(--blue);
       box-shadow: 0 5px 14px rgba(16, 19, 31, 0.08);
+    }
+
+    .preset-button.active {
+      background: #eef6ff;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+
+    .pathway-panel.has-active .preset-button:not(.active) {
+      display: none;
+    }
+
+    .preset-title {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .preset-desc {
+      color: var(--muted);
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 650;
+      line-height: 1.25;
     }
 
     .share-row {
@@ -328,6 +367,23 @@
       margin-top: 8px;
     }
 
+    .guide-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .primary-button {
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      background: var(--blue);
+      color: #fff;
+      padding: 8px 10px;
+      font-size: 0.76rem;
+      font-weight: 850;
+    }
+
     .results-toolbar {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -373,6 +429,38 @@
       padding: 3px;
       background: var(--soft);
       border-radius: 9px;
+    }
+
+    .workspace-drawer {
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+      padding: 10px 12px;
+    }
+
+    .workspace-drawer.empty {
+      display: none;
+    }
+
+    .workspace-drawer summary {
+      color: #25324a;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 850;
+      list-style: none;
+      padding: 2px 0 8px;
+    }
+
+    .workspace-drawer summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .workspace-drawer summary::after {
+      content: " +";
+      color: var(--blue);
+    }
+
+    .workspace-drawer[open] summary::after {
+      content: " -";
     }
 
     .panel-tab {
@@ -533,6 +621,23 @@
     .badge.muted {
       color: var(--muted);
       border-color: #e1e7f0;
+    }
+
+    .pin-button {
+      border: 1px solid #c9d7ee;
+      border-radius: 999px;
+      background: #fff;
+      color: #1d4ed8;
+      padding: 4px 8px;
+      font-size: 0.68rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .pin-button.active {
+      background: #dbeafe;
+      border-color: var(--blue);
+      color: #123a8a;
     }
 
     #stats {
@@ -758,7 +863,7 @@
       #sidebar {
         width: 100%;
         min-width: 0;
-        height: 70vh;
+        height: 55vh;
         overflow-y: auto;
         border-right: 0;
         border-bottom: 1px solid var(--line);
@@ -774,7 +879,7 @@
       }
 
       #map-wrap {
-        min-height: 30vh;
+        min-height: 45vh;
       }
 
       .two-col {
@@ -787,10 +892,6 @@
 
       .sort-field {
         min-width: 0;
-      }
-
-      .map-status {
-        display: none;
       }
 
       .map-selection-tray {
@@ -813,15 +914,28 @@
 <body>
   <aside id="sidebar">
     <div id="sidebar-header">
-      <div class="brand-kicker">College geography</div>
-      <h1>USA College Map</h1>
-      <p class="header-copy">Build a focused map from the schools students are actively considering.</p>
-      <input type="text" id="search" placeholder="Search colleges, cities, regions...">
+      <div class="brand-kicker">College Map</div>
+      <h1>Find schools by place</h1>
+      <p class="header-copy">Search, filter, and pin colleges for a family conversation.</p>
+      <input type="text" id="search" placeholder="Search school, city, state, or region">
     </div>
 
     <section class="control-stack">
+      <div class="pathway-panel">
+        <div class="pathway-heading">Start with a guided list</div>
+        <div class="pathway-subcopy">Pick one path. The list below updates, then click a college card to pin it on the map.</div>
+        <div class="preset-grid">
+          <button class="preset-button" data-preset="california-publics"><span class="preset-title">California publics</span><span class="preset-desc">UC, CSU, and public CA options</span></button>
+          <button class="preset-button" data-preset="warm-weather"><span class="preset-title">Warm weather</span><span class="preset-desc">Schools in warmer climates</span></button>
+          <button class="preset-button" data-preset="profile-ready"><span class="preset-title">Profile ready</span><span class="preset-desc">Open full CollegeFit profiles</span></button>
+          <button class="preset-button" data-preset="major-cities"><span class="preset-title">Near major cities</span><span class="preset-desc">Urban access and airports</span></button>
+          <button class="preset-button" data-preset="community-pathways"><span class="preset-title">CC pathways</span><span class="preset-desc">California transfer pathways</span></button>
+          <button class="preset-button" data-preset="college-tours"><span class="preset-title">College tour hubs</span><span class="preset-desc">Start with a visit cluster</span></button>
+        </div>
+      </div>
+
       <details class="filter-drawer">
-        <summary>Filters and map layers</summary>
+        <summary>Refine results</summary>
         <div class="filter-body">
           <div>
             <div class="control-label"><span>Region</span><button class="small-button" id="reset-filters">Reset</button></div>
@@ -829,40 +943,23 @@
           </div>
 
           <div>
-            <div class="control-label"><span>School Type</span></div>
+            <div class="control-label"><span>Type</span></div>
             <div class="segmented" id="type-filters"></div>
           </div>
 
           <div class="two-col">
             <label>
-              <div class="control-label"><span>Climate Layer</span></div>
+              <div class="control-label"><span>Map color</span></div>
               <select class="select-control" id="climate-filter"></select>
             </label>
             <label>
-              <div class="control-label"><span>Known Place</span></div>
+              <div class="control-label"><span>Distance from</span></div>
               <select class="select-control" id="anchor-select"></select>
             </label>
           </div>
-        </div>
-      </details>
-
-      <details class="filter-drawer premium-drawer">
-        <summary>Premium discovery</summary>
-        <div class="filter-body">
-          <div>
-            <div class="control-label"><span>Guided starts</span></div>
-            <div class="preset-grid">
-              <button class="preset-button" data-preset="california-publics">California publics</button>
-              <button class="preset-button" data-preset="warm-weather">Warm weather</button>
-              <button class="preset-button" data-preset="profile-ready">Profile ready</button>
-              <button class="preset-button" data-preset="major-cities">Near major cities</button>
-              <button class="preset-button" data-preset="community-pathways">CC pathways</button>
-              <button class="preset-button" data-preset="college-tours">College tour hubs</button>
-            </div>
-          </div>
 
           <details class="sub-drawer">
-            <summary>Advanced fit tools</summary>
+            <summary>Fit and travel</summary>
             <div class="filter-body">
               <div class="two-col">
                 <label>
@@ -895,7 +992,7 @@
                   </select>
                 </label>
                 <label>
-                  <div class="control-label"><span>Profiles</span></div>
+                  <div class="control-label"><span>Profile status</span></div>
                   <select class="select-control" id="fit-profile">
                     <option value="">Any</option>
                     <option value="ready">Ready only</option>
@@ -909,7 +1006,7 @@
                   <select class="select-control" id="home-base-select"></select>
                 </label>
                 <label>
-                  <div class="control-label"><span>Region Overlay</span></div>
+                  <div class="control-label"><span>Show region outline</span></div>
                   <select class="select-control" id="context-select">
                     <option value="">None</option>
                     <option value="all">All regions</option>
@@ -933,22 +1030,15 @@
                   <button class="small-button" id="build-trip" type="button">Build route</button>
                 </label>
               </div>
+
+              <div class="share-row">
+                <span class="hint-text">Share the current filters and selected colleges with a family.</span>
+                <button class="small-button" id="share-map" type="button">Copy link</button>
+              </div>
             </div>
           </details>
-
-          <div class="share-row">
-            <span class="hint-text">Share the current filters and selected colleges with a family.</span>
-            <button class="small-button" id="share-map" type="button">Copy link</button>
-          </div>
         </div>
       </details>
-
-      <div class="panel-tabs">
-        <button class="panel-tab active" data-panel="shortlist">Shortlist</button>
-        <button class="panel-tab" data-panel="compare">Compare</button>
-        <button class="panel-tab" data-panel="travel">Travel</button>
-      </div>
-      <div id="insight-panel"></div>
     </section>
 
     <section class="guide-panel" id="guide-panel"></section>
@@ -972,14 +1062,23 @@
     </section>
 
     <div id="college-list"></div>
-    <div id="stats">Click pins or schools for details. Open available profiles from the detail window.</div>
+    <details class="workspace-drawer empty" id="workspace-drawer">
+      <summary>Saved, compare, and route</summary>
+      <div class="panel-tabs">
+        <button class="panel-tab active" data-panel="shortlist">Saved</button>
+        <button class="panel-tab" data-panel="compare">Compare</button>
+        <button class="panel-tab" data-panel="travel">Route</button>
+      </div>
+      <div id="insight-panel"></div>
+    </details>
+    <div id="stats">Click a college card to pin it on the map.</div>
   </aside>
 
   <main id="map-wrap">
     <div id="map"></div>
     <div class="map-status" id="map-status">
-      <div class="map-status-title">No colleges selected</div>
-      <div class="map-status-meta">Choose schools from the panel to place them on the U.S. map.</div>
+      <div class="map-status-title">Pin schools to build the map</div>
+      <div class="map-status-meta">Start with a guided list on the left, then click college cards to place pins.</div>
     </div>
     <div class="map-selection-tray" id="map-tray"></div>
     <div class="map-legend" id="map-legend"></div>
@@ -3684,7 +3783,7 @@
       "california-publics": {
         title: "California publics",
         copy: "Showing UC, CSU, and other public California options with California highlighted on the map.",
-        steps: ["Click a college card below to place its pin.", "Use Save to keep strong options pinned.", "Open Premium Discovery again only if you want to tune the fit."]
+        steps: ["Click a college card below to place its pin.", "Use Save to keep strong options pinned.", "Open Refine results only if you want to tune the fit."]
       },
       "warm-weather": {
         title: "Warm weather",
@@ -3786,6 +3885,7 @@
       resultsCount: document.getElementById("results-count"),
       resultsContext: document.getElementById("results-context"),
       guidePanel: document.getElementById("guide-panel"),
+      workspaceDrawer: document.getElementById("workspace-drawer"),
       resetFilters: document.getElementById("reset-filters")
     };
 
@@ -3801,7 +3901,7 @@
       const params = new URLSearchParams(window.location.search);
       const splitList = key => (params.get(key) || "")
         .split("|")
-        .map(value => decodeURIComponent(value).trim())
+        .map(value => value.trim())
         .filter(Boolean);
       return {
         search: params.get("q") || "",
@@ -3977,6 +4077,8 @@
     }
 
     const schools = [...colleges, ...collegeFitAdditions, ...publicSystemAdditions].map(enrichCollege);
+    state.shortlist = state.shortlist.filter(name => getSchool(name));
+    state.compare = state.compare.filter(name => getSchool(name)).slice(0, 5);
 
     function haversineMiles(a, b) {
       const radius = 3958.8;
@@ -4165,7 +4267,13 @@
       activeCollege = getSchool(name);
 
       document.querySelectorAll(".college-item").forEach(itemEl => {
-        itemEl.classList.toggle("active", itemEl.dataset.name === name);
+        const isActive = itemEl.dataset.name === name;
+        itemEl.classList.toggle("active", isActive);
+        const pinButton = itemEl.querySelector(".pin-button");
+        if (pinButton) {
+          pinButton.classList.toggle("active", isActive || getPinnedNames().has(itemEl.dataset.name));
+          pinButton.innerText = (isActive || getPinnedNames().has(itemEl.dataset.name)) ? "Pinned" : "Pin";
+        }
       });
 
       Object.values(markers).forEach(marker => {
@@ -4176,6 +4284,7 @@
       const pinEl = markers[name]?.getElement()?.querySelector(".college-pin");
       if (pinEl) pinEl.classList.add("active");
       drawDistanceLine();
+      renderResultsContext();
       renderInsightPanel();
     }
 
@@ -4220,6 +4329,11 @@
         state.compare = [...state.compare, name];
       } else {
         el.stats.innerText = "Compare mode holds up to 5 schools.";
+        activePanel = "compare";
+        renderInsightPanel();
+        el.workspaceDrawer.classList.remove("empty");
+        el.workspaceDrawer.open = true;
+        return;
       }
       storeLists();
       activePanel = "compare";
@@ -4232,7 +4346,7 @@
         ...state.shortlist,
         ...state.compare,
         ...tripPlanNames
-      ]);
+      ].filter(name => getSchool(name)));
     }
 
     function ensureMarkerVisible(name) {
@@ -4244,6 +4358,14 @@
       target.innerHTML = options.map(([value, label]) => (
         `<button class="chip${state[key] === value ? " active" : ""}" data-filter="${key}" data-value="${value}">${label}</button>`
       )).join("");
+    }
+
+    function renderPathwayButtons() {
+      const hasActivePreset = Boolean(activeGuide && document.querySelector(`[data-preset="${activeGuide}"]`));
+      document.querySelector(".pathway-panel")?.classList.toggle("has-active", hasActivePreset);
+      document.querySelectorAll("[data-preset]").forEach(button => {
+        button.classList.toggle("active", button.dataset.preset === activeGuide);
+      });
     }
 
     function renderSelects() {
@@ -4278,13 +4400,14 @@
     function renderList() {
       const filtered = getVisibleSchools();
       el.resultsCount.innerText = filtered.length;
-      el.resultsContext.innerText = `${getPinnedNames().size} pinned on map, ${state.shortlist.length} saved`;
+      renderResultsContext();
       el.collegeList.innerHTML = filtered.map(college => {
         const distance = getAnchorDistance(college);
         const distanceText = distance ? ` · ${distance} mi from ${state.anchor}` : "";
         const fitScore = getFitScore(college);
         const fitTag = fitScore !== null ? `<span class="mini-tag fit">${fitScore}% fit</span>` : "";
         const travelTag = state.homeBase ? `<span class="mini-tag">${getTravelComplexity(college)}</span>` : "";
+        const isPinned = getPinnedNames().has(college.name);
         return `
           <article class="college-item${activeCollege?.name === college.name ? " active" : ""}" data-name="${escapeAttr(college.name)}">
             <div class="college-row-top">
@@ -4292,7 +4415,7 @@
                 <div class="college-name">${escapeHtml(college.name)}</div>
                 <div class="college-location">${college.city} · ${college.region}${distanceText}</div>
               </div>
-              <span class="badge${college.hasProfile ? "" : " muted"}">${college.hasProfile ? "Profile" : "Soon"}</span>
+              <button class="pin-button${isPinned ? " active" : ""}" data-action="pin" data-name="${escapeAttr(college.name)}">${isPinned ? "Pinned" : "Pin"}</button>
             </div>
             <div class="college-meta">${college.category} · ${college.setting} · ${college.climate}</div>
             <div class="college-tags">
@@ -4305,12 +4428,21 @@
             <div class="college-actions">
               <button class="icon-button${state.shortlist.includes(college.name) ? " active" : ""}" title="Save to shortlist" data-action="shortlist" data-name="${escapeAttr(college.name)}">Save</button>
               <button class="icon-button${state.compare.includes(college.name) ? " active" : ""}" title="Add to compare" data-action="compare" data-name="${escapeAttr(college.name)}">Compare</button>
-              <button class="icon-button" title="${college.hasProfile ? "Open profile" : "Profile coming soon"}" data-action="profile" data-name="${escapeAttr(college.name)}">Profile</button>
+              <button class="icon-button" title="${college.hasProfile ? "Open profile" : "Profile coming soon"}" data-action="profile" data-name="${escapeAttr(college.name)}">${college.hasProfile ? "Profile ready" : "Profile soon"}</button>
             </div>
           </article>
         `;
       }).join("");
       el.stats.innerText = `${filtered.length} colleges in list. ${getPinnedNames().size} pinned on map. ${state.shortlist.length} saved.`;
+    }
+
+    function renderResultsContext() {
+      const activeLabel = guideCopy[activeGuide]?.title;
+      const statusParts = [];
+      if (activeLabel) statusParts.push(activeLabel);
+      statusParts.push(`${getPinnedNames().size} pinned`);
+      statusParts.push(`${state.shortlist.length} saved`);
+      el.resultsContext.innerText = statusParts.join(" · ");
     }
 
     function renderMarkers() {
@@ -4358,6 +4490,16 @@
       el.mapTray.innerHTML = pinnedNames.map(name => (
         `<button class="map-pill" data-pin-name="${escapeAttr(name)}">${escapeHtml(name)}</button>`
       )).join("");
+    }
+
+    function fitMapToRoutePins() {
+      if (tripPlanNames.length < 2) return;
+      const points = tripPlanNames.map(name => getSchool(name)).filter(Boolean).map(school => [school.lat, school.lng]);
+      if (points.length < 2) return;
+      map.fitBounds(L.latLngBounds(points), {
+        padding: [70, 70],
+        maxZoom: 6
+      });
     }
 
     function clearRegionOverlays() {
@@ -4441,11 +4583,22 @@
       el.search.value = "";
       collapseDiscoveryDrawers();
       renderAll();
+      requestAnimationFrame(() => {
+        el.guidePanel.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      });
     }
 
     function applyCluster(key) {
+      const previousTripNames = [...tripPlanNames];
       state.cluster = key;
       tripPlanNames = (clusterOptions[key]?.names || []).filter(name => getSchool(name)).slice(0, 6);
+      if (!tripPlanNames.length) {
+        if (activeCollege && previousTripNames.includes(activeCollege.name)) activeCollege = null;
+        if (activeGuide === "cluster" || activeGuide === "college-tours") activeGuide = null;
+        distanceLine?.remove();
+        distanceLine = null;
+        return;
+      }
       if (tripPlanNames.length) {
         activeGuide = "cluster";
         activePanel = "travel";
@@ -4490,8 +4643,8 @@
       set("context", state.context);
       set("cluster", state.cluster);
       if (activeCollege) params.set("active", activeCollege.name);
-      if (state.shortlist.length) params.set("saved", state.shortlist.map(encodeURIComponent).join("|"));
-      if (state.compare.length) params.set("compare", state.compare.map(encodeURIComponent).join("|"));
+      if (state.shortlist.length) params.set("saved", state.shortlist.join("|"));
+      if (state.compare.length) params.set("compare", state.compare.join("|"));
       const query = params.toString();
       return `${window.location.origin}${window.location.pathname}${query ? `?${query}` : ""}`;
     }
@@ -4528,10 +4681,20 @@
           </div>
           <button class="small-button" data-guide-action="clear" type="button">Clear</button>
         </div>
+        <div class="guide-actions">
+          <button class="primary-button" data-guide-action="first" type="button">Open top match on map</button>
+          <button class="small-button" data-guide-action="refine" type="button">Refine results</button>
+        </div>
         <div class="guide-steps">
           ${guide.steps.map((step, index) => `<div><strong>${index + 1}.</strong> ${escapeHtml(step)}</div>`).join("")}
         </div>
       `;
+    }
+
+    function renderWorkspaceState() {
+      const hasWork = state.shortlist.length || state.compare.length || tripPlanNames.length;
+      el.workspaceDrawer.classList.toggle("empty", !hasWork);
+      if (!hasWork) el.workspaceDrawer.open = false;
     }
 
     function renderInsightPanel() {
@@ -4637,6 +4800,7 @@
     function renderAll() {
       renderFilterButtons(el.regionFilters, regionOptions, "region");
       renderFilterButtons(el.typeFilters, typeOptions, "type");
+      renderPathwayButtons();
       renderSelects();
       renderList();
       renderMarkers();
@@ -4645,7 +4809,9 @@
       renderLegend();
       renderMapState();
       renderGuidePanel();
+      renderWorkspaceState();
       renderInsightPanel();
+      fitMapToRoutePins();
     }
 
     el.search.addEventListener("input", event => {
@@ -4670,6 +4836,15 @@
 
       const guideAction = event.target.closest("[data-guide-action]");
       if (guideAction) {
+        if (guideAction.dataset.guideAction === "first") {
+          const first = getVisibleSchools()[0];
+          if (first) showCollegePopup(first.name);
+          return;
+        }
+        if (guideAction.dataset.guideAction === "refine") {
+          document.querySelector(".filter-drawer").open = true;
+          return;
+        }
         activeGuide = null;
         renderGuidePanel();
         return;
@@ -4686,6 +4861,7 @@
         event.stopPropagation();
         const name = actionButton.dataset.name;
         const action = actionButton.dataset.action;
+        if (action === "pin") showCollegePopup(name);
         if (action === "shortlist") toggleShortlist(name);
         if (action === "compare") toggleCompare(name);
         if (action === "profile") openCollegeProfile(name);
