@@ -7,7 +7,8 @@
 //
 // Re-run whenever you want fresh data or add/remove colleges.
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { parseFetchOptions } from './fetch-options.mjs';
 
 const OVERPASS_ENDPOINTS = [
   'https://overpass.kumi.systems/api/interpreter',
@@ -247,11 +248,8 @@ const COLLEGES = [
 ];
 
 async function main() {
+  const { skipExisting, limit } = parseFetchOptions(process.argv.slice(2), COLLEGES.length);
   mkdirSync('data/buildings', { recursive: true });
-  const skipExisting = process.argv.includes('--skip-existing');
-  const limit = process.argv.includes('--limit')
-    ? Number(process.argv[process.argv.indexOf('--limit') + 1])
-    : COLLEGES.length;
 
   const todo = COLLEGES.slice(0, limit).filter((c) => {
     if (skipExisting && existsSync(`data/buildings/${c.slug}.geojson`)) {
