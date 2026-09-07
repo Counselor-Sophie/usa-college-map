@@ -10,6 +10,7 @@
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { isRelevantMatch } from './wikipedia-match.mjs';
+import { fetchJSON } from './wiki-fetch.mjs';
 
 const CONCURRENCY = 4;
 const BATCH_DIR = 'data/buildings';
@@ -75,14 +76,6 @@ const COLLEGE_NAME = {
   'university-of-alaska-anchorage': 'University of Alaska Anchorage',
   'university-of-alaska-fairbanks': 'University of Alaska Fairbanks',
 };
-
-const UA = 'usa-college-map/1.0 (https://github.com/Counselor-Sophie/usa-college-map)';
-
-async function fetchJSON(url) {
-  const res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'application/json' } });
-  if (!res.ok) return null;
-  return await res.json();
-}
 
 function extractWikipediaTitle(tags) {
   if (typeof tags.wikipedia !== 'string') return null;
@@ -198,20 +191,26 @@ async function enrichCampus(slug, force) {
 
   const WIKI_FIELDS = ['wikiTitle','wikiDescription','wikiExtract','wikiUrl','wikiPhoto','wikiBuilt','wikiHeight'];
   let succeeded = 0;
+  let retryableFailures = 0;
   let idx = 0;
   const workers = Array.from({ length: CONCURRENCY }, () => (async () => {
     while (idx < toEnrich.length) {
       const feature = toEnrich[idx++];
-      // Strip any stale wiki fields first so a now-rejected match gets cleared.
-      for (const k of WIKI_FIELDS) delete feature.properties[k];
       try {
         const enrichment = await enrichBuilding(feature, collegeName);
         if (enrichment) {
+          // Only replace cached data after a definitive response. A transient
+          // failure should not destroy the last known-good enrichment.
+          for (const k of WIKI_FIELDS) delete feature.properties[k];
+          delete feature.properties._wikiTried;
           Object.assign(feature.properties, enrichment);
           if (enrichment.wikiTitle) succeeded++;
         }
-      } catch (err) {
-        feature.properties._wikiTried = true;
+      } catch {
+        // Network/API failures are not evidence that no article exists. Keep
+        // cached data, but remove the marker so a normal future run retries.
+        delete feature.properties._wikiTried;
+        retryableFailures++;
       }
     }
   })());
@@ -219,6 +218,9 @@ async function enrichCampus(slug, force) {
 
   writeFileSync(file, JSON.stringify(data));
   console.log(`  ✓ ${slug}: ${succeeded}/${toEnrich.length} buildings matched a Wikipedia article`);
+  if (retryableFailures) {
+    console.warn(`  ! ${slug}: ${retryableFailures} transient failure(s) left unmarked for retry`);
+  }
 }
 
 async function main() {
