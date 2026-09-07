@@ -9,6 +9,7 @@
 
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { parseFetchOptions } from './fetch-options.mjs';
+import { fetchWithTimeout } from './fetch-timeout.js';
 import { geometryToLinearRing } from './geojson-ring.mjs';
 import { validateOverpassResponse } from './overpass-response.mjs';
 
@@ -20,6 +21,7 @@ const OVERPASS_ENDPOINTS = [
 const BUFFER_KM = 1.5;            // half-side of the bbox in km
 const CONCURRENCY = 3;            // parallel college fetches
 const MAX_RETRY = 3;
+const REQUEST_TIMEOUT_MS = 120_000;
 
 // Mirror of the client classifier — keep in sync with index.html.
 function classify(t) {
@@ -78,7 +80,7 @@ async function queryOverpass(body) {
   for (const url of OVERPASS_ENDPOINTS) {
     for (let attempt = 0; attempt < MAX_RETRY; attempt++) {
       try {
-        const res = await fetch(url, {
+        const res = await fetchWithTimeout(url, {
           method: 'POST',
           body: 'data=' + encodeURIComponent(body),
           headers: {
@@ -86,7 +88,7 @@ async function queryOverpass(body) {
             'Accept': 'application/json',
             'User-Agent': 'usa-college-map/1.0 (https://github.com/Counselor-Sophie/usa-college-map)',
           },
-        });
+        }, fetch, REQUEST_TIMEOUT_MS);
         if (res.status === 429 || res.status === 504 || res.status === 502) {
           lastErr = new Error(`${res.status} @ ${url}`);
           await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));

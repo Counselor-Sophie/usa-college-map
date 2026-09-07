@@ -17,6 +17,18 @@ test('returns parsed JSON and sends the project user agent', async () => {
   assert.deepEqual(result, { found: true });
   assert.match(requestOptions.headers['User-Agent'], /usa-college-map/);
   assert.equal(requestOptions.headers.Accept, 'application/json');
+  assert.ok(requestOptions.signal instanceof AbortSignal);
+});
+
+test('times out a Wikipedia request instead of stalling the enrichment run', async () => {
+  const neverResponds = async (_url, { signal }) => new Promise((resolve, reject) => {
+    signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+  });
+
+  await assert.rejects(
+    fetchJSON('https://example.test/hangs', neverResponds, 10),
+    /Timed out after 10ms/,
+  );
 });
 
 test('treats a 404 as a definitive missing resource', async () => {

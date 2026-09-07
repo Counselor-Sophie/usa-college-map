@@ -6,7 +6,8 @@ import { fetchCampusFeatureCollection } from '../scripts/campus-fetch.js';
 test('loads and validates a campus FeatureCollection', async () => {
   const expected = { type: 'FeatureCollection', features: [] };
   const fetchMock = async (_url, options) => {
-    assert.deepEqual(options, { cache: 'no-cache' });
+    assert.equal(options.cache, 'no-cache');
+    assert.ok(options.signal instanceof AbortSignal);
     return new Response(JSON.stringify(expected), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -14,6 +15,17 @@ test('loads and validates a campus FeatureCollection', async () => {
   };
 
   assert.deepEqual(await fetchCampusFeatureCollection('/campus.geojson', fetchMock), expected);
+});
+
+test('times out a campus request so a later load can retry', async () => {
+  const neverResponds = async (_url, { signal }) => new Promise((resolve, reject) => {
+    signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+  });
+
+  await assert.rejects(
+    fetchCampusFeatureCollection('/campus.geojson', neverResponds, 10),
+    /Timed out after 10ms/,
+  );
 });
 
 test('treats only a 404 as definitively missing campus data', async () => {

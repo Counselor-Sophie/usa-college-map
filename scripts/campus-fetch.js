@@ -1,5 +1,7 @@
-export async function fetchCampusFeatureCollection(url, fetchImpl = fetch) {
-  const response = await fetchImpl(url, { cache: 'no-cache' });
+import { fetchWithTimeout } from './fetch-timeout.js';
+
+export async function fetchCampusFeatureCollection(url, fetchImpl = fetch, timeoutMs) {
+  const response = await fetchWithTimeout(url, { cache: 'no-cache' }, fetchImpl, timeoutMs);
   if (response.status === 404) return null;
   if (!response.ok) {
     throw new Error(`HTTP ${response.status} fetching ${url}`);
