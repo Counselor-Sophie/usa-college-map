@@ -28,6 +28,7 @@
       padding: 20px;
       background: #16213e;
       border-bottom: 1px solid #333;
+      position: relative;
     }
     #sidebar-header h1 {
       font-size: 1.2rem;
@@ -81,6 +82,12 @@
       font-size: 0.8rem;
       color: #888;
       text-align: center;
+    }
+
+    #sidebar-toggle,
+    #sidebar-close,
+    #sidebar-backdrop {
+      display: none;
     }
 
     /* ───────── Map ───────── */
@@ -327,18 +334,100 @@
     }
     .wiki-facts dt { color: #6b7280; font-weight: 600; }
     .wiki-facts dd { color: #1a1a2e; }
+
+    @media (max-width: 700px) {
+      body {
+        display: block;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+      #map {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #sidebar {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(86vw, 320px);
+        height: 100%;
+        z-index: 20;
+        transform: translateX(-105%);
+        transition: transform 0.22s ease;
+        box-shadow: 8px 0 28px rgba(0,0,0,0.35);
+      }
+      #sidebar.is-open { transform: translateX(0); }
+      #sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 15;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: rgba(5, 8, 20, 0.48);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s ease;
+      }
+      #sidebar-backdrop.is-open {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+      #sidebar-toggle {
+        position: absolute;
+        top: 10px;
+        left: 50px;
+        z-index: 10;
+        align-items: center;
+        min-height: 30px;
+        padding: 6px 11px;
+        border: 0;
+        border-radius: 4px;
+        background: #fff;
+        color: #1a1a2e;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+      }
+      #sidebar-toggle[aria-expanded="false"] { display: flex; }
+      #sidebar-close {
+        display: block;
+        position: absolute;
+        top: 13px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 1.45rem;
+        line-height: 1;
+      }
+      #sidebar-close:hover { background: #1f3460; color: #fff; }
+      #sidebar-header { padding-right: 56px; }
+      .maplibregl-popup { max-width: calc(100vw - 24px) !important; }
+    }
   </style>
 </head>
 <body>
   <div id="sidebar">
     <div id="sidebar-header">
       <h1>🎓 USA College Map</h1>
+      <button id="sidebar-close" type="button" aria-label="Close college list">×</button>
       <input type="text" id="search" placeholder="Search colleges...">
     </div>
     <div id="college-list"></div>
     <div id="stats">Click a college to locate</div>
   </div>
+  <button id="sidebar-backdrop" type="button" aria-label="Close college list" tabindex="-1"></button>
   <div id="map">
+    <button id="sidebar-toggle" type="button" aria-controls="sidebar" aria-expanded="false">☰ Colleges</button>
     <div id="campus-legend">
       <h4>Buildings</h4>
       <div id="campus-legend-items"></div>
@@ -446,6 +535,35 @@
     });
 
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-left');
+
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+    const mobileLayout = window.matchMedia('(max-width: 700px)');
+
+    function setMobileSidebarOpen(open) {
+      const shouldOpen = mobileLayout.matches && open;
+      sidebar.classList.toggle('is-open', shouldOpen);
+      sidebarBackdrop.classList.toggle('is-open', shouldOpen);
+      sidebarToggle.setAttribute('aria-expanded', String(shouldOpen));
+      sidebar.inert = mobileLayout.matches && !shouldOpen;
+      if (mobileLayout.matches) sidebar.setAttribute('aria-hidden', String(!shouldOpen));
+      else sidebar.removeAttribute('aria-hidden');
+      if (shouldOpen) document.getElementById('search').focus();
+    }
+
+    sidebarToggle.addEventListener('click', () => setMobileSidebarOpen(true));
+    sidebarClose.addEventListener('click', () => setMobileSidebarOpen(false));
+    sidebarBackdrop.addEventListener('click', () => setMobileSidebarOpen(false));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setMobileSidebarOpen(false);
+    });
+    mobileLayout.addEventListener('change', () => {
+      setMobileSidebarOpen(false);
+      requestAnimationFrame(() => map.resize());
+    });
+    setMobileSidebarOpen(false);
 
     // ────────────────────────────────────────────────────────────────
     // Building categories + styling
@@ -743,6 +861,8 @@
     let activeMarkerName = null;
 
     function focusOnCollege(college) {
+      setMobileSidebarOpen(false);
+
       // Highlight in sidebar
       document.querySelectorAll('.college-item').forEach((el) => el.classList.remove('active'));
       document.querySelectorAll('.college-item').forEach((el) => {
