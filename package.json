@@ -1,0 +1,9 @@
+{
+  "name": "usa-college-map",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check scripts/enrich-campuses.mjs && node --check scripts/fetch-all-campuses.mjs && node --check scripts/wikipedia-match.mjs",
+    "test": "node --test"
+  }
+}

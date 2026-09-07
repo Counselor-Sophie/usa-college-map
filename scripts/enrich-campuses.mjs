@@ -9,6 +9,7 @@
 
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { isRelevantMatch } from './wikipedia-match.mjs';
 
 const CONCURRENCY = 4;
 const BATCH_DIR = 'data/buildings';
@@ -17,7 +18,7 @@ const BATCH_DIR = 'data/buildings';
 const COLLEGE_NAME = {
   'harvard-university': 'Harvard',
   'stanford-university': 'Stanford',
-  'mit': 'MIT',
+  'mit': 'Massachusetts Institute of Technology',
   'yale-university': 'Yale',
   'princeton-university': 'Princeton',
   'columbia-university': 'Columbia',
@@ -34,7 +35,7 @@ const COLLEGE_NAME = {
   'university-of-notre-dame': 'Notre Dame',
   'georgetown-university': 'Georgetown',
   'uc-berkeley': 'UC Berkeley',
-  'ucla': 'UCLA',
+  'ucla': 'University of California Los Angeles',
   'uc-san-diego': 'UC San Diego',
   'uc-santa-barbara': 'UC Santa Barbara',
   'uc-davis': 'UC Davis',
@@ -43,9 +44,9 @@ const COLLEGE_NAME = {
   'university-of-virginia': 'University of Virginia',
   'carnegie-mellon-university': 'Carnegie Mellon',
   'emory-university': 'Emory',
-  'usc': 'USC',
-  'nyu': 'NYU',
-  'university-of-north-carolina': 'UNC',
+  'usc': 'University of Southern California',
+  'nyu': 'New York University',
+  'university-of-north-carolina': 'University of North Carolina',
   'university-of-georgia': 'University of Georgia',
   'university-of-texas-at-austin': 'University of Texas at Austin',
   'university-of-florida': 'University of Florida',
@@ -62,17 +63,17 @@ const COLLEGE_NAME = {
   'tufts-university': 'Tufts',
   'northeastern-university': 'Northeastern',
   'wake-forest-university': 'Wake Forest',
-  'george-washington-university': 'GWU',
+  'george-washington-university': 'George Washington University',
   'university-of-rochester': 'University of Rochester',
   'case-western-reserve': 'Case Western Reserve',
   'lehigh-university': 'Lehigh',
   'university-of-colorado-boulder': 'University of Colorado Boulder',
   'university-of-utah': 'University of Utah',
-  'brigham-young-university': 'BYU',
+  'brigham-young-university': 'Brigham Young University',
   'university-of-hawaii-at-manoa': 'University of Hawaii',
   'hawaii-pacific-university': 'Hawaii Pacific',
-  'university-of-alaska-anchorage': 'UAA',
-  'university-of-alaska-fairbanks': 'UAF',
+  'university-of-alaska-anchorage': 'University of Alaska Anchorage',
+  'university-of-alaska-fairbanks': 'University of Alaska Fairbanks',
 };
 
 const UA = 'usa-college-map/1.0 (https://github.com/Counselor-Sophie/usa-college-map)';
@@ -103,51 +104,6 @@ async function fetchWikipediaSummary(title) {
   const data = await fetchJSON(url);
   if (!data || data.type === 'disambiguation' || data.title === 'Not found.') return null;
   return data;
-}
-
-// Words that indicate the article is about a place/building (positive signal).
-const PLACE_WORDS = /\b(building|tower|hall|library|centre|center|stadium|union|church|cathedral|chapel|museum|garden|pavilion|wing|annex|dormitory|residence|hospital|arena|auditorium|theatre|theater|campus|quadrangle|quad|laboratory|observatory|gymnasium|complex|institute|gallery|lab|mall|structure|facility|bridge|statue|memorial|monument|park|plaza|school|academy)\b/i;
-
-// Clearly-not-a-building descriptors (reject).
-const NON_PLACE_DESCRIPTORS = /\b(politician|businessman|businesswoman|entrepreneur|philanthropist|artist|painter|sculptor|author|writer|novelist|journalist|director|architect|professor|scientist|physicist|mathematician|chemist|biologist|musician|singer|actor|actress|judge|lawyer|philosopher|theologian|athlete|football|basketball|baseball|tennis|boxer|olympian|coach|cardinal\b|horse|farm|ranch|film|movie|novel|song|album|character|species|ship|aircraft|vehicle|company|corporation|organization|foundation|fraternity|sorority|band|team|faction)\b/i;
-
-// Is this Wikipedia summary about a specific building on this college's campus?
-function isRelevantMatch(summary, buildingName, collegeName) {
-  const title = (summary.title || '').toLowerCase();
-  const extract = (summary.extract || '').toLowerCase();
-  const desc = (summary.description || '').toLowerCase();
-  const bName = buildingName.toLowerCase();
-  const cName = collegeName.toLowerCase();
-
-  // Reject if description is clearly about a person / team / company / etc.
-  if (NON_PLACE_DESCRIPTORS.test(desc)) return false;
-
-  // Reject if the Wikipedia article is the college itself — too generic.
-  const collegeTitleish = cName.replace(/\s+/g, '_');
-  if (title === cName || title === collegeTitleish) return false;
-
-  // Must look like a building article: either title or description has a place word,
-  // or the extract talks about being built/located.
-  const looksLikePlace =
-    PLACE_WORDS.test(title) ||
-    PLACE_WORDS.test(desc) ||
-    /\b(is a building|is an academic|was built|was completed|was constructed|was designed|is located on|is housed in|is the main|opened in)\b/i.test(extract.slice(0, 400));
-  if (!looksLikePlace) return false;
-
-  // College might be mentioned by distinctive token, not full name.
-  // "Stanford University" → distinctive=["stanford"]; "University of Pennsylvania" → ["pennsylvania"]
-  const generic = new Set(['university','college','institute','school','the','of','at']);
-  const cTokens = cName.split(/\s+/).filter((w) => w.length > 2 && !generic.has(w));
-  const collegeMentioned = cTokens.length > 0
-    ? cTokens.some((t) => extract.includes(t) || title.includes(t))
-    : extract.includes(cName);
-
-  const bTokens = bName.split(/\s+/).filter((w) => w.length > 3);
-  const titleHasBuilding = bTokens.some((w) => title.includes(w));
-
-  if (collegeMentioned && (titleHasBuilding || extract.includes(bName))) return true;
-  if (title.includes(bName)) return true; // exact/substring match on title is strong
-  return false;
 }
 
 async function searchWikipedia(query, collegeName) {
