@@ -7,7 +7,8 @@
 //
 // Re-run whenever you want fresh data or add/remove colleges.
 
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { mkdirSync, existsSync } from 'node:fs';
+import { writeJsonAtomic } from './atomic-json-write.mjs';
 import { parseFetchOptions } from './fetch-options.mjs';
 import { fetchWithTimeout } from './fetch-timeout.js';
 import { geometryToLinearRing } from './geojson-ring.mjs';
@@ -179,7 +180,7 @@ out geom tags;`;
 
   const fc = { type: 'FeatureCollection', features };
   mkdirSync('data/buildings', { recursive: true });
-  writeFileSync(out, JSON.stringify(fc));
+  await writeJsonAtomic(out, fc);
 
   const named = features.filter((f) => f.properties.name).length;
   console.log(`  ✓ ${name}: ${features.length} buildings (${named} named) in ${dt}ms`);

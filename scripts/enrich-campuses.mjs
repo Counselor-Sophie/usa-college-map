@@ -7,8 +7,9 @@
 //   node scripts/enrich-campuses.mjs stanford-university  # one slug
 //   node scripts/enrich-campuses.mjs --force         # re-enrich even buildings we've tried before
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { writeJsonAtomic } from './atomic-json-write.mjs';
 import { parseEnrichOptions } from './enrich-options.mjs';
 import { isRelevantMatch } from './wikipedia-match.mjs';
 import { fetchJSON } from './wiki-fetch.mjs';
@@ -216,7 +217,7 @@ async function enrichCampus(slug, force) {
   })());
   await Promise.all(workers);
 
-  writeFileSync(file, JSON.stringify(data));
+  await writeJsonAtomic(file, data);
   console.log(`  ✓ ${slug}: ${succeeded}/${toEnrich.length} buildings matched a Wikipedia article`);
   if (retryableFailures) {
     console.warn(`  ! ${slug}: ${retryableFailures} transient failure(s) left unmarked for retry`);
