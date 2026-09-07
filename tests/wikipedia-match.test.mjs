@@ -65,3 +65,26 @@ test('accepts a college acronym derived from its full name', () => {
     true
   );
 });
+
+test('does not infer the college from a shared word in the building name', () => {
+  const summary = {
+    title: 'Washington Hall',
+    description: 'Academic building at the University of Notre Dame',
+    extract: 'Washington Hall is a historic campus building at the University of Notre Dame.',
+  };
+
+  assert.equal(
+    isRelevantMatch(summary, 'Washington Hall', 'University of Washington'),
+    false
+  );
+});
+
+test('still accepts an explicit single-token college phrase', () => {
+  const summary = {
+    title: 'Washington Hall',
+    description: 'Academic building at Stanford',
+    extract: 'Washington Hall is located on the Stanford campus.',
+  };
+
+  assert.equal(isRelevantMatch(summary, 'Washington Hall', 'Stanford'), true);
+});

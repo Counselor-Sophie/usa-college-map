@@ -61,7 +61,7 @@ export function isRelevantMatch(summary, buildingName, collegeName) {
     .join('');
   const collegeMentioned =
     includesPhrase(articleText, normalizedCollege) ||
-    (collegeTokens.length > 0 && collegeTokens.every((word) => articleWords.has(word))) ||
+    (collegeTokens.length >= 2 && collegeTokens.every((word) => articleWords.has(word))) ||
     (collegeInitials.length >= 3 && articleWords.has(collegeInitials));
   if (!collegeMentioned) return false;
 
