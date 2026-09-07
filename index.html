@@ -360,7 +360,9 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { fetchCampusFeatureCollection } from './scripts/campus-fetch.js';
+
     // ────────────────────────────────────────────────────────────────
     // College data — same structure as before
     // ────────────────────────────────────────────────────────────────
@@ -520,19 +522,12 @@
 
       const p = (async () => {
         try {
-          const res = await fetch(`./data/buildings/${slug}.geojson`, { cache: 'no-cache' });
-          if (!res.ok) {
-            console.warn(`No campus data for ${slug} (${res.status})`);
-            campusCache.set(slug, null);
-            return null;
-          }
-          const fc = await res.json();
+          const fc = await fetchCampusFeatureCollection(`./data/buildings/${slug}.geojson`);
           campusCache.set(slug, fc);
           return fc;
         } catch (err) {
           console.warn(`Failed to load campus ${slug}:`, err);
-          campusCache.set(slug, null);
-          return null;
+          return undefined;
         } finally {
           campusInflight.delete(slug);
         }
@@ -583,7 +578,14 @@
       const fc = await loadCampusData(nearest);
       if (myToken !== updateToken) return; // stale
 
-      if (!fc) {
+      if (fc === undefined) {
+        source.setData({ type: 'FeatureCollection', features: [] });
+        showStatus(`Couldn't load ${nearest.name}; move away and back to retry`);
+        activeCampusSlug = null;
+        return;
+      }
+
+      if (fc === null) {
         source.setData({ type: 'FeatureCollection', features: [] });
         showStatus(`No campus data yet for ${nearest.name}`);
         activeCampusSlug = null;
