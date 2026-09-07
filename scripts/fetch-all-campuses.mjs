@@ -9,6 +9,7 @@
 
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { parseFetchOptions } from './fetch-options.mjs';
+import { validateOverpassResponse } from './overpass-response.mjs';
 
 const OVERPASS_ENDPOINTS = [
   'https://overpass.kumi.systems/api/interpreter',
@@ -94,7 +95,7 @@ async function queryOverpass(body) {
           lastErr = new Error(`HTTP ${res.status} @ ${url}`);
           break;
         }
-        return await res.json();
+        return validateOverpassResponse(await res.json(), url);
       } catch (err) {
         lastErr = err;
         await new Promise((r) => setTimeout(r, 1000));
