@@ -9,6 +9,7 @@
 
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { parseEnrichOptions } from './enrich-options.mjs';
 import { isRelevantMatch } from './wikipedia-match.mjs';
 import { fetchJSON } from './wiki-fetch.mjs';
 
@@ -169,9 +170,8 @@ async function enrichCampus(slug, force) {
   let data;
   try {
     data = JSON.parse(readFileSync(file, 'utf8'));
-  } catch {
-    console.error(`  ! couldn't read ${file}`);
-    return;
+  } catch (cause) {
+    throw new Error(`Couldn't read ${file}`, { cause });
   }
 
   const collegeName = COLLEGE_NAME[slug] || slug;
@@ -225,14 +225,10 @@ async function enrichCampus(slug, force) {
 
 async function main() {
   const args = process.argv.slice(2);
-  const force = args.includes('--force');
-  const slugs = args.filter((a) => !a.startsWith('--'));
-
-  const targets = slugs.length
-    ? slugs
-    : readdirSync(BATCH_DIR)
-        .filter((f) => f.endsWith('.geojson'))
-        .map((f) => f.replace(/\.geojson$/, ''));
+  const availableSlugs = readdirSync(BATCH_DIR)
+    .filter((f) => f.endsWith('.geojson'))
+    .map((f) => f.replace(/\.geojson$/, ''));
+  const { force, targets } = parseEnrichOptions(args, availableSlugs);
 
   console.log(`Enriching ${targets.length} campus(es) (force=${force})...`);
   for (const slug of targets) {
