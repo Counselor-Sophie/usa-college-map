@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check scripts/enrich-campuses.mjs && node --check scripts/fetch-all-campuses.mjs && node --check scripts/fetch-options.mjs && node --check scripts/overpass-response.mjs && node --check scripts/wikipedia-match.mjs && node --check scripts/wiki-fetch.mjs",
+    "check": "node --check scripts/enrich-campuses.mjs && node --check scripts/fetch-all-campuses.mjs && node --check scripts/fetch-options.mjs && node --check scripts/geojson-ring.mjs && node --check scripts/overpass-response.mjs && node --check scripts/wikipedia-match.mjs && node --check scripts/wiki-fetch.mjs",
     "test": "node --test"
   }
 }

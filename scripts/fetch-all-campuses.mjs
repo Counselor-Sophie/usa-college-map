@@ -9,6 +9,7 @@
 
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { parseFetchOptions } from './fetch-options.mjs';
+import { geometryToLinearRing } from './geojson-ring.mjs';
 import { validateOverpassResponse } from './overpass-response.mjs';
 
 const OVERPASS_ENDPOINTS = [
@@ -105,13 +106,6 @@ async function queryOverpass(body) {
   throw lastErr || new Error('All Overpass endpoints failed');
 }
 
-function wayToRing(el) {
-  const coords = el.geometry.map((p) => [p.lon, p.lat]);
-  const first = coords[0], last = coords[coords.length - 1];
-  if (first[0] !== last[0] || first[1] !== last[1]) coords.push(first);
-  return coords;
-}
-
 async function fetchCollege(college) {
   const { lat, lng, slug, name } = college;
   const out = `data/buildings/${slug}.geojson`;
@@ -132,10 +126,15 @@ out geom tags;`;
   // Partition into buildings + context zones
   const buildings = [];
   const zones = [];
+  let invalidGeometry = 0;
   for (const el of data.elements || []) {
-    if (el.type !== 'way' || !el.geometry || el.geometry.length < 3) continue;
+    if (el.type !== 'way') continue;
+    const ring = geometryToLinearRing(el.geometry);
+    if (!ring) {
+      invalidGeometry++;
+      continue;
+    }
     const tags = el.tags || {};
-    const ring = wayToRing(el);
     if (tags.building) {
       buildings.push({ el, tags, ring });
     } else if (tags.landuse || tags.amenity === 'university') {
@@ -182,6 +181,9 @@ out geom tags;`;
 
   const named = features.filter((f) => f.properties.name).length;
   console.log(`  ✓ ${name}: ${features.length} buildings (${named} named) in ${dt}ms`);
+  if (invalidGeometry) {
+    console.warn(`  ! ${name}: skipped ${invalidGeometry} way(s) with invalid polygon geometry`);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
